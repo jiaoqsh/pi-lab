@@ -10,6 +10,7 @@
 		--accent: #2f5bd3; --accent-text: #ffffff; --code-bg: #f1f0ec;
 		--ok: #1f7a4d; --warn: #9a6100; --bad: #b42318; --add-bg: #e6f4ea; --del-bg: #fce8e6;
 		--mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		--tok-keyword: #8a2be2; --tok-string: #2f7a2f; --tok-comment: #8b8a84; --tok-number: #b35c00; --tok-title: #2f5bd3; --tok-type: #9a4f7a;
 		color-scheme: light;
 	}
 	@media (prefers-color-scheme: dark) {
@@ -17,6 +18,7 @@
 			--bg: #151514; --panel: #1d1d1b; --text: #ecebe6; --muted: #9b9a93; --border: #33322f;
 			--accent: #7aa2ff; --accent-text: #0f1420; --code-bg: #262624;
 			--ok: #5cc28d; --warn: #e0a84a; --bad: #f2786d; --add-bg: #17331f; --del-bg: #3a1a17;
+			--tok-keyword: #c792ea; --tok-string: #a5d6a7; --tok-comment: #7d7c76; --tok-number: #f0a868; --tok-title: #82aaff; --tok-type: #e4a3c8;
 			color-scheme: dark;
 		}
 	}
@@ -67,6 +69,22 @@
 	.key input[type=password] { grid-column: 1 / -1; font: 13px var(--mono); padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
 	.key label { font-size: 13px; color: var(--muted); }
 	.error { color: var(--bad); }
+	.files { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+	.files button { font: 12px var(--mono); padding: 3px 10px; border-radius: 14px; }
+	.files button.active { background: var(--code-bg); border-color: var(--muted); font-weight: 600; }
+	.file-head { display: flex; align-items: baseline; gap: 12px; font: 12.5px var(--mono); color: var(--muted); margin-bottom: 4px; }
+	.file-head strong { color: var(--text); }
+	.file-head a { margin-left: auto; }
+	.code { display: grid; grid-template-columns: auto 1fr; background: var(--code-bg); border-radius: 8px; overflow: auto; max-height: 75vh; font: 12.5px/1.55 var(--mono); }
+	.code pre { margin: 0; padding: 12px 14px; max-height: none; border-radius: 0; background: none; overflow: visible; tab-size: 2; }
+	.code .gutter { color: var(--muted); text-align: right; user-select: none; border-right: 1px solid var(--border); position: sticky; left: 0; background: var(--code-bg); }
+	/* highlight.js tokens */
+	.hljs-keyword, .hljs-built_in, .hljs-literal, .hljs-meta { color: var(--tok-keyword); }
+	.hljs-string, .hljs-regexp, .hljs-template-variable { color: var(--tok-string); }
+	.hljs-comment { color: var(--tok-comment); font-style: italic; }
+	.hljs-number { color: var(--tok-number); }
+	.hljs-title, .hljs-title.function_, .hljs-title.class_ { color: var(--tok-title); }
+	.hljs-type, .hljs-params, .hljs-attr, .hljs-property { color: var(--tok-type); }
 	@media (max-width: 760px) {
 		.layout { grid-template-columns: 1fr; }
 		nav { border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
@@ -169,6 +187,7 @@ async function open(name) {
 	current = await api(`experiments/${name}`);
 	const summary = state.experiments.find((each) => each.name === name);
 	liveRun = undefined;
+	code = undefined;
 	if (summary?.run) attach(summary.run.id);
 	renderNav();
 	renderMain();
@@ -185,13 +204,15 @@ function renderMain() {
 	const needs = current.meta.keys.length
 		? `Needs ${current.meta.keys.join(", ")}${missing.length ? ` (missing: ${missing.join(", ")})` : ""}`
 		: "Offline: compared with snapshot.json";
-	const tabs = el("div", { class: "tabs" }, [["notes", "Notes"], ["stored", current.storedKind], ["run", "Run"]].map(([id, label]) =>
+	const tabs = el("div", { class: "tabs" }, [["notes", "Notes"], ["code", "Code"], ["stored", current.storedKind], ["run", "Run"]].map(([id, label]) =>
 		el("button", { class: tab === id ? "active" : "", onclick: () => { tab = id; renderMain(); } }, label)));
 
 	let body;
 	if (tab === "notes") {
 		body = el("article", { class: "notes" });
 		body.innerHTML = current.notesHtml; // rendered server-side from this repo's NOTES.md
+	} else if (tab === "code") {
+		body = renderCode();
 	} else if (tab === "stored") {
 		body = current.stored === undefined
 			? el("p", { class: "hint" }, `No ${current.storedKind} yet. Run the experiment to create it.`)
@@ -206,6 +227,36 @@ function renderMain() {
 		const log = document.getElementById("log");
 		if (log) log.scrollTop = log.scrollHeight;
 	}
+}
+
+// The open experiment's sources, loaded when the Code tab is first shown: { files, selected }.
+let code;
+
+function renderCode() {
+	if (!code) {
+		const name = current.name;
+		api(`experiments/${name}/code`)
+			.then(({ files }) => {
+				if (current.name !== name) return;
+				code = { files, selected: files[0]?.path };
+				renderMain();
+			})
+			.catch((error) => alertInline(error.message));
+		return el("p", { class: "hint" }, "Loading…");
+	}
+	const file = code.files.find((each) => each.path === code.selected);
+	if (!file) return el("p", { class: "hint" }, "No source files.");
+	const pre = el("pre");
+	pre.innerHTML = file.html; // highlighted server-side from this repo's own files
+	const gutter = el("pre", { class: "gutter" }, Array.from({ length: file.lines }, (_, i) => i + 1).join("\n"));
+	return el("section", {},
+		el("div", { class: "files" }, code.files.map((each) =>
+			el("button", { class: each.path === code.selected ? "active" : "", onclick: () => { code.selected = each.path; renderMain(); } },
+				each.path.replace(`experiments/${current.name}/`, "")))),
+		el("div", { class: "file-head" },
+			el("strong", {}, file.path), `${file.lines} lines`,
+			el("a", { href: file.url, target: "_blank", rel: "noreferrer" }, "View on GitHub")),
+		el("div", { class: "code" }, gutter, pre));
 }
 
 function renderRun() {

@@ -39,7 +39,7 @@ npm run exp -- --all
 npm run ui
 ```
 
-Open the printed `http://127.0.0.1:4173/#token=…` URL. The UI lists the experiments by feature, renders their notes, runs them with a live log, shows the diff when a key-free result no longer matches its snapshot (with a button to accept it), and lets you enter API keys.
+Open the printed `http://127.0.0.1:4173/#token=…` URL. The UI lists the experiments by feature, renders their notes, shows their source (`run.ts` plus the fixtures and helpers listed under `related` in `meta.json`, highlighted), runs them with a live log, shows the diff when a key-free result no longer matches its snapshot (with a button to accept it), and lets you enter API keys.
 
 ![pi-lab UI showing a snapshot diff](docs/ui.png)
 
@@ -63,7 +63,7 @@ Already waiting on pi's main branch at the time of writing: Anthropic mid-conver
 
 ```
 experiments/<name>/
-  meta.json        title, feature, required keys
+  meta.json        title, feature, required keys, related files shown in the UI
   run.ts           prints one JSON result to stdout, logs to stderr
   NOTES.md         question, findings, mechanism, source links
   snapshot.json    key-free experiments: the expected result

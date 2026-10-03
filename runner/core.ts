@@ -16,6 +16,8 @@ export interface Meta {
 	/** Environment variables the experiment needs. Empty: offline, compared with snapshot.json. */
 	keys: string[];
 	timeoutMs?: number;
+	/** Repo-relative files outside the experiment's directory that it relies on (fixtures, helpers). */
+	related?: string[];
 }
 
 export interface Experiment {

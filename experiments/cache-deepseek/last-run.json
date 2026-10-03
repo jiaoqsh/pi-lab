@@ -1,11 +1,11 @@
 {
-  "ranAt": "2026-10-03T08:59:22.553Z",
+  "ranAt": "2026-10-03T09:21:18.121Z",
   "versions": "pi-ai@1.0.0, pi-durable@1.0.0, pi-codemode@1.0.0, pi-coding-agent@1.0.0",
   "result": {
     "model": "deepseek/deepseek-flash",
     "strategies": {
       "baseline: no change": {
-        "followUpPromptTokens": 4250,
+        "followUpPromptTokens": 4255,
         "cacheHitTokens": 4096,
         "hitPercent": 96
       },
@@ -15,7 +15,7 @@
         "hitPercent": 96
       },
       "prompt change collapsed into the leading system message": {
-        "followUpPromptTokens": 4261,
+        "followUpPromptTokens": 4262,
         "cacheHitTokens": 1792,
         "hitPercent": 42
       },

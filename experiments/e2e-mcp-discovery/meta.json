@@ -1,6 +1,12 @@
 {
 	"title": "Real pi + DeepSeek + a local MCP server: how models discover and call hidden MCP tools (codemode vs tool_search)",
 	"feature": "codemode",
-	"keys": ["DEEPSEEK_API_KEY"],
-	"timeoutMs": 900000
+	"keys": [
+		"DEEPSEEK_API_KEY"
+	],
+	"timeoutMs": 900000,
+	"related": [
+		"lib/pi-cli.ts",
+		"fixtures/shop-mcp-server.ts"
+	]
 }

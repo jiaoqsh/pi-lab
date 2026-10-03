@@ -6,10 +6,12 @@
 // also carry the random token printed at startup (a page on another site cannot read it), and requests whose Host
 // header is not this server are rejected (DNS rebinding).
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { join, posix } from "node:path";
+import { join, posix, relative, resolve, sep } from "node:path";
 import { parseEnv } from "node:util";
+import hljs from "highlight.js/lib/core";
+import typescript from "highlight.js/lib/languages/typescript";
 import { marked, type Tokens } from "marked";
 import {
 	acceptSnapshot,
@@ -134,6 +136,40 @@ function renderNotes(experiment: Experiment): string {
 	return marked.parser(tokens).replaceAll('<a href="http', '<a target="_blank" rel="noreferrer" href="http');
 }
 
+// ─── Code ──────────────────────────────────────────────────────────────────
+
+hljs.registerLanguage("typescript", typescript);
+
+/** TypeScript files under `dir`, relative to the repo root, run.ts first. */
+function experimentSources(dir: string): string[] {
+	return readdirSync(dir, { recursive: true, encoding: "utf8" })
+		.filter((file) => file.endsWith(".ts"))
+		.map((file) => relative(ROOT, join(dir, file)).split(sep).join("/"))
+		.sort((a, b) => Number(b.endsWith("/run.ts")) - Number(a.endsWith("/run.ts")) || a.localeCompare(b));
+}
+
+/**
+ * The experiment's own sources plus the files its meta.json lists under `related`. Only .ts files inside the repo
+ * (and outside node_modules) are served, so this cannot be used to read .env or anything else.
+ */
+function experimentCode(experiment: Experiment) {
+	const paths = [...experimentSources(experiment.dir), ...(experiment.meta.related ?? [])];
+	return paths.flatMap((path) => {
+		const absolute = resolve(ROOT, path);
+		const inside = absolute.startsWith(ROOT + sep) && !absolute.includes(`${sep}node_modules${sep}`);
+		if (!inside || !absolute.endsWith(".ts") || !existsSync(absolute)) return [];
+		const source = readFileSync(absolute, "utf8");
+		return [
+			{
+				path,
+				lines: source.split("\n").length,
+				html: hljs.highlight(source, { language: "typescript" }).value,
+				url: `${REPO_BLOB}/${path}`,
+			},
+		];
+	});
+}
+
 function readJson(file: string): unknown {
 	return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : undefined;
 }
@@ -201,6 +237,7 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
 				storedKind: offline ? "snapshot.json" : "last-run.json",
 			});
 		}
+		if (req.method === "GET" && parts[2] === "code") return send(res, 200, { files: experimentCode(experiment) });
 		if (req.method === "POST" && parts[2] === "run") {
 			const current = latestRun.get(experiment.name);
 			if (current && !current.outcome) return send(res, 409, { error: "already running", runId: current.id });
