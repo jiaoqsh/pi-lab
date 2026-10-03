@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-lab</title>
+<style>
+	:root {
+		--bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --border: #e3e2dd;
+		--accent: #2f5bd3; --accent-text: #ffffff; --code-bg: #f1f0ec;
+		--ok: #1f7a4d; --warn: #9a6100; --bad: #b42318; --add-bg: #e6f4ea; --del-bg: #fce8e6;
+		--mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		color-scheme: light;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--bg: #151514; --panel: #1d1d1b; --text: #ecebe6; --muted: #9b9a93; --border: #33322f;
+			--accent: #7aa2ff; --accent-text: #0f1420; --code-bg: #262624;
+			--ok: #5cc28d; --warn: #e0a84a; --bad: #f2786d; --add-bg: #17331f; --del-bg: #3a1a17;
+			color-scheme: dark;
+		}
+	}
+	* { box-sizing: border-box; }
+	body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+	header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--panel); position: sticky; top: 0; z-index: 2; }
+	header h1 { font-size: 17px; margin: 0; }
+	header .versions { color: var(--muted); font: 12px var(--mono); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	button { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+	button:hover:not(:disabled) { border-color: var(--muted); }
+	button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+	button:disabled { opacity: .5; cursor: default; }
+	.layout { display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 53px); }
+	nav { border-right: 1px solid var(--border); padding: 12px 10px; overflow-y: auto; }
+	nav h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 8px 4px; }
+	nav a { display: block; padding: 6px 8px; border-radius: 6px; color: inherit; text-decoration: none; }
+	nav a:hover { background: var(--code-bg); }
+	nav a.active { background: var(--code-bg); font-weight: 600; }
+	nav .row { display: flex; align-items: center; gap: 6px; }
+	nav .name { flex: 1; font: 13px var(--mono); overflow: hidden; text-overflow: ellipsis; }
+	.badge { font: 11px var(--mono); padding: 1px 6px; border-radius: 10px; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+	.badge.ok { color: var(--ok); border-color: currentColor; }
+	.badge.warn { color: var(--warn); border-color: currentColor; }
+	.badge.bad { color: var(--bad); border-color: currentColor; }
+	main { padding: 20px 28px 60px; min-width: 0; }
+	.title { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+	.title h2 { margin: 0; font: 600 20px var(--mono); }
+	.title p { margin: 4px 0 0; color: var(--muted); }
+	.title .actions { margin-left: auto; display: flex; gap: 8px; }
+	.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 18px 0; }
+	.tabs button { border: none; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 6px 12px; color: var(--muted); }
+	.tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+	.notes { max-width: 900px; }
+	.notes table { border-collapse: collapse; margin: 12px 0; font-size: 14px; display: block; overflow-x: auto; }
+	.notes th, .notes td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; vertical-align: top; }
+	.notes code { font: 13px var(--mono); background: var(--code-bg); padding: 1px 4px; border-radius: 4px; }
+	.notes pre code { background: none; padding: 0; }
+	pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow: auto; font: 12.5px/1.5 var(--mono); max-height: 520px; margin: 8px 0; }
+	a { color: var(--accent); }
+	.status { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: var(--muted); }
+	.diff .add { background: var(--add-bg); display: block; }
+	.diff .del { background: var(--del-bg); display: block; }
+	.hint { color: var(--muted); font-size: 14px; }
+	dialog { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); color: var(--text); padding: 20px 22px; width: min(560px, 92vw); }
+	dialog::backdrop { background: rgb(0 0 0 / .35); }
+	dialog h3 { margin: 0 0 4px; }
+	.key { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+	.key input[type=password] { grid-column: 1 / -1; font: 13px var(--mono); padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
+	.key label { font-size: 13px; color: var(--muted); }
+	.error { color: var(--bad); }
+	@media (max-width: 760px) {
+		.layout { grid-template-columns: 1fr; }
+		nav { border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
+		main { padding: 16px; }
+	}
+</style>
+</head>
+<body>
+<header>
+	<h1>pi-lab</h1>
+	<span class="versions" id="versions"></span>
+	<button id="keys-button">Keys</button>
+</header>
+<div class="layout">
+	<nav id="nav"></nav>
+	<main id="main"><p class="hint">Loading…</p></main>
+</div>
+
+<dialog id="keys-dialog">
+	<h3>API keys</h3>
+	<p class="hint">Keys entered here stay in the server's memory until it stops, unless you save them to <code>.env</code>. Values are never sent back to this page.</p>
+	<div id="keys-list"></div>
+	<div style="text-align:right;margin-top:12px"><button id="keys-close">Close</button></div>
+</dialog>
+
+<script>
+"use strict";
+
+// ─── Token and API ─────────────────────────────────────────────────────────
+// The URL printed by `npm run ui` carries the token in the fragment, which is never sent over the network.
+const fromHash = /^#token=([\w-]+)/.exec(location.hash);
+if (fromHash) {
+	sessionStorage.setItem("pi-lab-token", fromHash[1]);
+	history.replaceState(null, "", "#/");
+}
+const TOKEN = sessionStorage.getItem("pi-lab-token") ?? "";
+
+async function api(path, options = {}) {
+	const response = await fetch(`/api/${path}`, {
+		...options,
+		headers: { "x-pi-lab-token": TOKEN, "content-type": "application/json", ...(options.headers ?? {}) },
+	});
+	const data = await response.json();
+	if (!response.ok) throw new Error(data.error ?? response.statusText);
+	return data;
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function el(tag, attributes = {}, ...children) {
+	const node = document.createElement(tag);
+	for (const [key, value] of Object.entries(attributes)) {
+		if (key === "class") node.className = value;
+		else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+		else if (value !== undefined && value !== false) node.setAttribute(key, value === true ? "" : value);
+	}
+	for (const child of children.flat()) if (child != null) node.append(child);
+	return node;
+}
+
+const STATUS_CLASS = { unchanged: "ok", recorded: "ok", new: "ok", updated: "ok", changed: "warn", failed: "bad", skipped: "warn" };
+
+function statusBadge(experiment) {
+	if (experiment.run?.running) return el("span", { class: "badge" }, "running…");
+	if (experiment.run?.status) return el("span", { class: `badge ${STATUS_CLASS[experiment.run.status] ?? ""}` }, experiment.run.status);
+	if (experiment.missingKeys.length) return el("span", { class: "badge warn", title: `needs ${experiment.missingKeys.join(", ")}` }, "needs key");
+	return el("span", { class: "badge" }, experiment.meta.keys.length ? "keyed" : "offline");
+}
+
+function renderDiff(text) {
+	return el("pre", { class: "diff" }, text.split("\n").map((line) =>
+		el("span", { class: line.startsWith("+") ? "add" : line.startsWith("-") ? "del" : "" }, `${line}\n`)));
+}
+
+// ─── State ─────────────────────────────────────────────────────────────────
+let state;
+let current; // the open experiment's details
+let tab = "notes";
+let liveRun; // { id, log, outcome } for the open experiment
+
+async function refresh() {
+	state = await api("state");
+	document.getElementById("versions").textContent = state.versions;
+	renderNav();
+	renderKeys();
+}
+
+function renderNav() {
+	const nav = document.getElementById("nav");
+	const byFeature = Map.groupBy(state.experiments, (experiment) => experiment.meta.feature);
+	nav.replaceChildren(...[...byFeature].flatMap(([feature, experiments]) => [
+		el("h2", {}, feature),
+		...experiments.map((experiment) =>
+			el("a", { href: `#/exp/${experiment.name}`, class: current?.name === experiment.name ? "active" : "", title: experiment.meta.title },
+				el("div", { class: "row" }, el("span", { class: "name" }, experiment.name), statusBadge(experiment)))),
+	]));
+}
+
+// ─── Experiment view ───────────────────────────────────────────────────────
+async function open(name) {
+	current = await api(`experiments/${name}`);
+	const summary = state.experiments.find((each) => each.name === name);
+	liveRun = undefined;
+	if (summary?.run) attach(summary.run.id);
+	renderNav();
+	renderMain();
+}
+
+function renderMain() {
+	const summary = state.experiments.find((each) => each.name === current.name);
+	const running = Boolean(liveRun && !liveRun.outcome);
+	const missing = summary?.missingKeys ?? [];
+	const actions = el("div", { class: "actions" },
+		running
+			? el("button", { onclick: () => api(`runs/${liveRun.id}/stop`, { method: "POST" }) }, "Stop")
+			: el("button", { class: "primary", disabled: missing.length > 0, title: missing.length ? `Set ${missing.join(", ")} first` : undefined, onclick: run }, "Run"));
+	const needs = current.meta.keys.length
+		? `Needs ${current.meta.keys.join(", ")}${missing.length ? ` (missing: ${missing.join(", ")})` : ""}`
+		: "Offline: compared with snapshot.json";
+	const tabs = el("div", { class: "tabs" }, [["notes", "Notes"], ["stored", current.storedKind], ["run", "Run"]].map(([id, label]) =>
+		el("button", { class: tab === id ? "active" : "", onclick: () => { tab = id; renderMain(); } }, label)));
+
+	let body;
+	if (tab === "notes") {
+		body = el("article", { class: "notes" });
+		body.innerHTML = current.notesHtml; // rendered server-side from this repo's NOTES.md
+	} else if (tab === "stored") {
+		body = current.stored === undefined
+			? el("p", { class: "hint" }, `No ${current.storedKind} yet. Run the experiment to create it.`)
+			: el("pre", {}, JSON.stringify(current.stored, null, 2));
+	} else {
+		body = renderRun();
+	}
+	document.getElementById("main").replaceChildren(
+		el("div", { class: "title" }, el("div", {}, el("h2", {}, current.name), el("p", {}, current.meta.title), el("p", {}, needs)), actions),
+		tabs, body);
+	if (tab === "run") {
+		const log = document.getElementById("log");
+		if (log) log.scrollTop = log.scrollHeight;
+	}
+}
+
+function renderRun() {
+	if (!liveRun) return el("p", { class: "hint" }, "Not run in this session. Press Run to start it; its log streams here.");
+	const outcome = liveRun.outcome;
+	const parts = [
+		el("div", { class: "status" },
+			outcome ? el("span", { class: `badge ${STATUS_CLASS[outcome.status] ?? ""}` }, outcome.status) : el("span", { class: "badge" }, "running…"),
+			outcome ? `${outcome.seconds}s` : ""),
+		el("pre", { id: "log" }, liveRun.log || "(no log output yet)"),
+	];
+	if (outcome?.status === "changed") {
+		parts.push(el("h3", {}, "Differs from snapshot.json"), renderDiff(outcome.detail),
+			el("button", { class: "primary", onclick: accept }, "Accept as new snapshot"));
+	} else if (outcome?.status === "failed" || outcome?.status === "skipped") {
+		parts.push(el("pre", { class: "error" }, outcome.detail));
+	}
+	if (outcome?.result !== undefined) {
+		parts.push(el("details", {}, el("summary", {}, "Result"), el("pre", {}, JSON.stringify(outcome.result, null, 2))));
+	}
+	return el("section", {}, parts);
+}
+
+function attach(runId) {
+	liveRun = { id: runId, log: "", outcome: undefined };
+	const events = new EventSource(`/api/runs/${runId}/events?token=${encodeURIComponent(TOKEN)}`);
+	const target = liveRun;
+	events.addEventListener("log", (event) => {
+		target.log += JSON.parse(event.data);
+		if (liveRun === target && tab === "run") {
+			const log = document.getElementById("log");
+			if (log) { log.textContent = target.log; log.scrollTop = log.scrollHeight; }
+		}
+	});
+	events.addEventListener("done", async (event) => {
+		events.close();
+		target.outcome = JSON.parse(event.data);
+		await refresh();
+		if (liveRun === target) {
+			current = await api(`experiments/${current.name}`);
+			renderMain();
+		}
+	});
+}
+
+async function run() {
+	try {
+		const { runId } = await api(`experiments/${current.name}/run`, { method: "POST" });
+		tab = "run";
+		attach(runId);
+		await refresh();
+		renderMain();
+	} catch (error) {
+		alertInline(error.message);
+	}
+}
+
+async function accept() {
+	await api(`experiments/${current.name}/accept`, { method: "POST", body: JSON.stringify({ runId: liveRun.id }) });
+	liveRun.outcome = { ...liveRun.outcome, status: "updated" };
+	current = await api(`experiments/${current.name}`);
+	await refresh();
+	renderMain();
+}
+
+function alertInline(message) {
+	document.getElementById("main").prepend(el("p", { class: "error" }, message));
+}
+
+// ─── Keys ──────────────────────────────────────────────────────────────────
+const SOURCE_LABEL = { ui: "set in this UI session", "env-file": "from .env", environment: "from the shell environment" };
+
+function renderKeys() {
+	document.getElementById("keys-list").replaceChildren(...state.keys.map((key) => {
+		const input = el("input", { type: "password", placeholder: key.source ? "replace (leave empty to clear a UI-session key)" : "paste key", autocomplete: "off" });
+		const persist = el("input", { type: "checkbox" });
+		const save = async () => {
+			await api("keys", { method: "POST", body: JSON.stringify({ name: key.name, value: input.value, persist: persist.checked }) });
+			await refresh();
+			if (current) renderMain();
+		};
+		return el("div", { class: "key" },
+			el("strong", {}, key.name),
+			el("span", { class: `badge ${key.source ? "ok" : "warn"}` }, key.source ? SOURCE_LABEL[key.source] : "not set"),
+			input,
+			el("label", {}, persist, " save to .env"),
+			el("button", { onclick: save }, "Save"));
+	}));
+}
+
+document.getElementById("keys-button").addEventListener("click", () => document.getElementById("keys-dialog").showModal());
+document.getElementById("keys-close").addEventListener("click", () => document.getElementById("keys-dialog").close());
+
+// ─── Routing ───────────────────────────────────────────────────────────────
+async function route() {
+	const match = /^#\/exp\/([\w-]+)/.exec(location.hash);
+	const name = match?.[1] ?? state.experiments[0]?.name;
+	if (name && name !== current?.name) {
+		tab = "notes";
+		await open(name);
+	}
+}
+
+window.addEventListener("hashchange", route);
+(async () => {
+	if (!TOKEN) {
+		document.getElementById("main").replaceChildren(el("p", { class: "error" }, "No access token. Open the URL printed by `npm run ui`."));
+		return;
+	}
+	try {
+		await refresh();
+		await route();
+	} catch (error) {
+		document.getElementById("main").replaceChildren(el("p", { class: "error" }, error.message));
+	}
+})();
+</script>
+</body>
+</html>

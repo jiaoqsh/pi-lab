@@ -33,6 +33,22 @@ npm run exp -- --all
 
 `PI_LAB_VERBOSE=1` streams each experiment's log. Experiments call real APIs only when their keys are set; a full keyed run costs a few cents.
 
+## Local UI
+
+```bash
+npm run ui
+```
+
+Open the printed `http://127.0.0.1:4173/#token=…` URL. The UI lists the experiments by feature, renders their notes, runs them with a live log, shows the diff when a key-free result no longer matches its snapshot (with a button to accept it), and lets you enter API keys.
+
+![pi-lab UI showing a snapshot diff](docs/ui.png)
+
+It is built for your own machine only:
+
+- It listens on `127.0.0.1` and rejects requests whose `Host` header is not that address (DNS rebinding).
+- Every API call needs the random token printed at startup, so other web pages you have open cannot start runs or spend credits. The token travels in the URL fragment, which browsers never send to servers.
+- Keys entered in the UI stay in server memory unless you choose to save them to `.env`; values are never sent back to the page. Only keys that an experiment declares can be set.
+
 ## How tracking works
 
 pi packages are pinned to exact versions in `package.json`.
@@ -54,7 +70,8 @@ experiments/<name>/
   last-run.json    keyed experiments: the latest recorded result
 fixtures/          shop MCP server, virtual-model router extension
 lib/               experiment helpers, running the pi CLI in an isolated config dir
-runner/            the experiment runner and its diff
+runner/            the experiment runner (core.ts, shared with the UI) and its diff
+ui/                local web UI: server.ts (node:http) and index.html (no build step)
 ```
 
 Keys stay in `.env` (git-ignored). Nothing here is meant to be hosted: experiments spawn processes, run MCP servers, and kill themselves on purpose.
