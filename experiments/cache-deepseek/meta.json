@@ -1,0 +1,6 @@
+{
+	"title": "Measured prompt-cache hits on DeepSeek for each way a mid-conversation change can be sent",
+	"feature": "system-messages",
+	"keys": ["DEEPSEEK_API_KEY"],
+	"timeoutMs": 300000
+}

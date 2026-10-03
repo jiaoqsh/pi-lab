@@ -1,0 +1,6 @@
+{
+	"title": "Jev classifier: typed questions about JSON state, answered with probabilities",
+	"feature": "non-llm-models",
+	"keys": ["TYPESAFE_API_KEY"],
+	"timeoutMs": 120000
+}

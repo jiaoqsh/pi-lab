@@ -1,0 +1,6 @@
+{
+	"title": "A virtual model that plans on deepseek-v4-pro (picked by Jev) and implements on deepseek-flash",
+	"feature": "virtual-models",
+	"keys": ["DEEPSEEK_API_KEY", "TYPESAFE_API_KEY"],
+	"timeoutMs": 900000
+}

@@ -1,0 +1,6 @@
+{
+	"title": "How a mid-conversation system message (prompt section + new tool) reaches each provider's wire format",
+	"feature": "system-messages",
+	"keys": [],
+	"timeoutMs": 60000
+}

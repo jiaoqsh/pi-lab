@@ -1,0 +1,45 @@
+name: track pi releases
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Compare pinned and latest pi
+        id: versions
+        run: |
+          echo "current=$(node -p 'require("./package.json").dependencies["@earendil-works/pi-ai"]')" >> "$GITHUB_OUTPUT"
+          echo "latest=$(npm view @earendil-works/pi-ai version)" >> "$GITHUB_OUTPUT"
+      - name: Upgrade pi and rerun key-free experiments
+        if: steps.versions.outputs.current != steps.versions.outputs.latest
+        run: |
+          npm install --save-exact --ignore-scripts \
+            @earendil-works/pi-ai@latest @earendil-works/pi-durable@latest @earendil-works/pi-codemode@latest \
+            @earendil-works/pi-coding-agent@latest @earendil-works/chord@latest
+          # Failed or changed experiments are the point of this run: report them in the PR instead of failing.
+          npm run exp -- --offline --update --report report.md || true
+      - name: Open a pull request with the report
+        if: steps.versions.outputs.current != steps.versions.outputs.latest
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: track/pi-${{ steps.versions.outputs.latest }}
+          title: "track: pi ${{ steps.versions.outputs.current }} -> ${{ steps.versions.outputs.latest }}"
+          commit-message: "track: pi ${{ steps.versions.outputs.latest }}"
+          body-path: report.md
+          add-paths: |
+            package.json
+            package-lock.json
+            experiments/*/snapshot.json

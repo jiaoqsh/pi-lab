@@ -1,0 +1,29 @@
+{
+  "ranAt": "2026-10-03T08:59:22.553Z",
+  "versions": "pi-ai@1.0.0, pi-durable@1.0.0, pi-codemode@1.0.0, pi-coding-agent@1.0.0",
+  "result": {
+    "model": "deepseek/deepseek-flash",
+    "strategies": {
+      "baseline: no change": {
+        "followUpPromptTokens": 4250,
+        "cacheHitTokens": 4096,
+        "hitPercent": 96
+      },
+      "prompt change in place (mid-conversation system message)": {
+        "followUpPromptTokens": 4260,
+        "cacheHitTokens": 4096,
+        "hitPercent": 96
+      },
+      "prompt change collapsed into the leading system message": {
+        "followUpPromptTokens": 4261,
+        "cacheHitTokens": 1792,
+        "hitPercent": 42
+      },
+      "tool added (no native tool additions: tool list resent)": {
+        "followUpPromptTokens": 4305,
+        "cacheHitTokens": 2048,
+        "hitPercent": 48
+      }
+    }
+  }
+}

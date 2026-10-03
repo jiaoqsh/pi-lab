@@ -1,0 +1,6 @@
+{
+	"title": "Official pi-durable examples: busy inbox (steer/follow-up/write), background subagents on SQLite, compaction",
+	"feature": "durable",
+	"keys": [],
+	"timeoutMs": 120000
+}

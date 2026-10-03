@@ -1,0 +1,168 @@
+{
+  "declarations": [
+    "declare const tools: {",
+    "  /** List issues of a Linear team */",
+    "  mcp__linear__list_issues(args: { team: string; }): Promise<Array<{ id?: string; priority?: number; title?: string; }>>;",
+    "  /** Send a notification */",
+    "  notify(args: { text: string; }): Promise<unknown>;",
+    "  /** Stands in for host functions such as searchTools() that resolve to a value */",
+    "  searchLike(args: unknown): Promise<unknown>;",
+    "};"
+  ],
+  "ranInParallel": true,
+  "scenarios": {
+    "parallel-and-filter": {
+      "ok": true,
+      "value": {
+        "rowsSeenInSandbox": 10000,
+        "urgent": 2000,
+        "sample": [
+          "ENG-4",
+          "ENG-9"
+        ]
+      },
+      "storeWrites": {
+        "set": {},
+        "delete": []
+      },
+      "output": [],
+      "calls": [
+        "mcp__linear__list_issues:ok",
+        "mcp__linear__list_issues:ok"
+      ]
+    },
+    "store-write": {
+      "ok": true,
+      "value": "stored",
+      "storeWrites": {
+        "set": {
+          "cursor": "ENG-99"
+        },
+        "delete": []
+      },
+      "output": [],
+      "calls": [
+        "mcp__linear__list_issues:ok"
+      ]
+    },
+    "store-load-next-execution": {
+      "ok": true,
+      "value": "resume after ENG-99",
+      "storeWrites": {
+        "set": {},
+        "delete": []
+      },
+      "output": [],
+      "calls": []
+    },
+    "typo-in-tool-name": {
+      "ok": false,
+      "error": {
+        "kind": "script",
+        "name": "TypeError",
+        "message": "tools.Notify does not exist. Did you mean tools.notify? ALL_TOOLS lists every tool; searchTools(query) finds tools by topic. Check for a member with \"Notify\" in tools."
+      },
+      "output": [],
+      "calls": []
+    },
+    "allSettled-partial-failure": {
+      "ok": true,
+      "value": [
+        "sent",
+        "error: notification service is down"
+      ],
+      "storeWrites": {
+        "set": {},
+        "delete": []
+      },
+      "output": [],
+      "calls": [
+        "notify:ok",
+        "notify:error"
+      ]
+    },
+    "uncaught-error-keeps-output": {
+      "ok": false,
+      "error": {
+        "kind": "script",
+        "name": "Error",
+        "message": "notification service is down"
+      },
+      "output": [
+        "step 1 done"
+      ],
+      "calls": [
+        "notify:ok",
+        "notify:error"
+      ]
+    },
+    "isolation": {
+      "ok": true,
+      "value": {
+        "process": "undefined",
+        "fetch": "undefined",
+        "setTimeout": "undefined",
+        "require": "undefined"
+      },
+      "storeWrites": {
+        "set": {},
+        "delete": []
+      },
+      "output": [],
+      "calls": []
+    },
+    "stalled-promise": {
+      "ok": false,
+      "error": {
+        "kind": "script",
+        "name": "Error",
+        "message": "The script is waiting on a promise that can never settle: no tool call is pending, and timers do not exist here."
+      },
+      "output": [],
+      "calls": []
+    },
+    "infinite-loop-hits-timeout": {
+      "ok": false,
+      "error": {
+        "kind": "timeout",
+        "message": "Execution timed out after 1500 ms"
+      },
+      "output": [
+        "spinning"
+      ],
+      "calls": []
+    },
+    "memory-limit": {
+      "ok": false,
+      "error": {
+        "kind": "script",
+        "name": "InternalError",
+        "message": "out of memory"
+      },
+      "output": [],
+      "calls": []
+    },
+    "missing-await-stringify": {
+      "ok": true,
+      "value": "{}",
+      "storeWrites": {
+        "set": {},
+        "delete": []
+      },
+      "output": [],
+      "calls": [
+        "searchLike:ok"
+      ]
+    },
+    "declare-tools-variable": {
+      "ok": false,
+      "error": {
+        "kind": "script",
+        "name": "SyntaxError",
+        "message": "invalid redefinition of parameter name"
+      },
+      "output": [],
+      "calls": []
+    }
+  }
+}

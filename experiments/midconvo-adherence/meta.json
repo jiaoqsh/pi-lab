@@ -1,0 +1,6 @@
+{
+	"title": "Do models follow an instruction that arrives as a mid-conversation system message?",
+	"feature": "system-messages",
+	"keys": ["DEEPSEEK_API_KEY"],
+	"timeoutMs": 300000
+}

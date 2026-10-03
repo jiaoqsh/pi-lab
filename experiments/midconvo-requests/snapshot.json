@@ -1,0 +1,135 @@
+{
+  "replayedSystemMessage": {
+    "role": "system",
+    "content": "You are a coding assistant.\n\nDeployments are now allowed.",
+    "sections": {
+      "mode": "<mode>deploy</mode>"
+    },
+    "toolsAdded": [
+      "read",
+      "deploy"
+    ],
+    "timestamp": 0
+  },
+  "requests": {
+    "anthropic sonnet-5-5: native system + tool changes": {
+      "topLevelSystem": "[{\"type\":\"text\",\"text\":\"You are a coding assistant.\\n\\n<mode>read-only</mode>\",\"cache_control\":{\"type\":\"ephemeral\"}}]",
+      "tools": [
+        "read [cache]",
+        "__pi_deferred_placeholder__ (defer_loading)",
+        "deploy (defer_loading)"
+      ],
+      "items": [
+        "user: What is in README.md?",
+        "assistant: [{\"type\":\"text\",\"text\":\"It describes the project.\"}]",
+        "user: Deploy the api.",
+        "system: [{\"type\":\"text\",\"text\":\"Deployments are now allowed.\\n\\nUpdated system prompt section \\\"mode\\\":\\n\\n<mode>deploy</mode>\"},{\"type\":\"tool_addition\",\"tool\":{\"type\":\"tool_reference\",\"name\":\"deploy\"},\"cache…",
+        "system: [] output_config={\"effort\":\"high\"}"
+      ]
+    },
+    "anthropic sonnet-5-5: system messages only": {
+      "topLevelSystem": "[{\"type\":\"text\",\"text\":\"You are a coding assistant.\\n\\n<mode>read-only</mode>\",\"cache_control\":{\"type\":\"ephemeral\"}}]",
+      "tools": [
+        "read",
+        "deploy [cache]"
+      ],
+      "items": [
+        "user: What is in README.md?",
+        "assistant: [{\"type\":\"text\",\"text\":\"It describes the project.\"}]",
+        "user: Deploy the api.",
+        "system: [{\"type\":\"text\",\"text\":\"Deployments are now allowed.\\n\\nUpdated system prompt section \\\"mode\\\":\\n\\n<mode>deploy</mode>\",\"cache_control\":{\"type\":\"ephemeral\"}}]",
+        "system: [] output_config={\"effort\":\"high\"}"
+      ]
+    },
+    "anthropic sonnet-5-5: collapsed": {
+      "topLevelSystem": "[{\"type\":\"text\",\"text\":\"You are a coding assistant.\\n\\nDeployments are now allowed.\\n\\n<mode>deploy</mode>\",\"cache_control\":{\"type\":\"ephemeral\"}}]",
+      "tools": [
+        "read",
+        "deploy [cache]"
+      ],
+      "items": [
+        "user: What is in README.md?",
+        "assistant: [{\"type\":\"text\",\"text\":\"It describes the project.\"}]",
+        "user: [{\"type\":\"text\",\"text\":\"Deploy the api.\",\"cache_control\":{\"type\":\"ephemeral\"}}]",
+        "system: [] output_config={\"effort\":\"high\"}"
+      ]
+    },
+    "openai gpt-5.5 (responses): additional_tools": {
+      "tools": [
+        "read"
+      ],
+      "items": [
+        "developer: You are a coding assistant.\n\n<mode>read-only</mode>",
+        "user: [{\"type\":\"input_text\",\"text\":\"What is in README.md?\"}]",
+        "assistant: [{\"type\":\"output_text\",\"text\":\"It describes the project.\",\"annotations\":[]}]",
+        "additional_tools: [{\"type\":\"function\",\"name\":\"deploy\",\"description\":\"Deploy a service\",\"parameters\":{\"type\":\"object\",\"required\":[\"service\"],\"properties\":{\"service\":{\"type\":\"string\"}}},\"strict\":false}]",
+        "developer: Deployments are now allowed.\n\nUpdated system prompt section \"mode\":\n\n<mode>deploy</mode>",
+        "user: [{\"type\":\"input_text\",\"text\":\"Deploy the api.\"}]"
+      ]
+    },
+    "openai gpt-5.5 (responses): tool_search only": {
+      "tools": [
+        "read"
+      ],
+      "items": [
+        "developer: You are a coding assistant.\n\n<mode>read-only</mode>",
+        "user: [{\"type\":\"input_text\",\"text\":\"What is in README.md?\"}]",
+        "assistant: [{\"type\":\"output_text\",\"text\":\"It describes the project.\",\"annotations\":[]}]",
+        "tool_search_call: {\"query\":\"deploy\",\"limit\":1}",
+        "tool_search_output: [{\"type\":\"function\",\"name\":\"deploy\",\"description\":\"Deploy a service\",\"parameters\":{\"type\":\"object\",\"required\":[\"service\"],\"properties\":{\"service\":{\"type\":\"string\"}}},\"defer_loading\":true,\"strict\":fals…",
+        "developer: Deployments are now allowed.\n\nUpdated system prompt section \"mode\":\n\n<mode>deploy</mode>",
+        "user: [{\"type\":\"input_text\",\"text\":\"Deploy the api.\"}]"
+      ]
+    },
+    "moonshotai kimi-k2.6 (chat completions)": {
+      "tools": [
+        "read",
+        "deploy"
+      ],
+      "items": [
+        "system: You are a coding assistant.\n\n<mode>read-only</mode>",
+        "user: What is in README.md?",
+        "assistant: It describes the project.",
+        "system: Deployments are now allowed.\n\nUpdated system prompt section \"mode\":\n\n<mode>deploy</mode>",
+        "user: Deploy the api."
+      ]
+    },
+    "deepseek deepseek-v4-pro (chat completions)": {
+      "tools": [
+        "read",
+        "deploy"
+      ],
+      "items": [
+        "system: You are a coding assistant.\n\n<mode>read-only</mode>",
+        "user: What is in README.md?",
+        "assistant: It describes the project.",
+        "system: Deployments are now allowed.\n\nUpdated system prompt section \"mode\":\n\n<mode>deploy</mode>",
+        "user: Deploy the api."
+      ]
+    },
+    "deepseek deepseek-flash (chat completions, default catalog)": {
+      "tools": [
+        "read",
+        "deploy"
+      ],
+      "items": [
+        "system: You are a coding assistant.\n\nDeployments are now allowed.\n\n<mode>deploy</mode>",
+        "user: What is in README.md?",
+        "assistant: It describes the project.",
+        "user: Deploy the api."
+      ]
+    },
+    "google gemini-2.5-flash (generative ai)": {
+      "topLevelSystem": "You are a coding assistant.\n\nDeployments are now allowed.\n\n<mode>deploy</mode>",
+      "tools": [
+        "read",
+        "deploy"
+      ],
+      "items": [
+        "user: [{\"text\":\"What is in README.md?\"}]",
+        "model: [{\"text\":\"It describes the project.\"}]",
+        "user: [{\"text\":\"Deploy the api.\"}]"
+      ]
+    }
+  }
+}

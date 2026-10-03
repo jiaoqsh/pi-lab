@@ -1,0 +1,66 @@
+{
+  "unsafe (default replay)": {
+    "crashExitCode": 1,
+    "afterRestart": {
+      "submissionStatus": "done",
+      "transcript": [
+        "pi.user",
+        "pi.system",
+        "pi.assistant",
+        "pi.tool-result",
+        "pi.assistant"
+      ],
+      "toolResult": {
+        "isError": true,
+        "text": "<harness>\n[error] Tool deploy was interrupted and may have partially run\n</harness>"
+      }
+    },
+    "sideEffects": [
+      "crash process: api step 1",
+      "crash process: api step 2"
+    ]
+  },
+  "unsafe, output given 250 ms to commit before the crash": {
+    "crashExitCode": 1,
+    "afterRestart": {
+      "submissionStatus": "done",
+      "transcript": [
+        "pi.user",
+        "pi.system",
+        "pi.assistant",
+        "pi.tool-result",
+        "pi.assistant"
+      ],
+      "toolResult": {
+        "isError": true,
+        "text": "step 1: done\nstep 2: done\n<harness>\n[error] Tool deploy was interrupted and may have partially run\n</harness>"
+      }
+    },
+    "sideEffects": [
+      "crash process: api step 1",
+      "crash process: api step 2"
+    ]
+  },
+  "safe replay + memo per step": {
+    "crashExitCode": 1,
+    "afterRestart": {
+      "submissionStatus": "done",
+      "transcript": [
+        "pi.user",
+        "pi.system",
+        "pi.assistant",
+        "pi.tool-result",
+        "pi.assistant"
+      ],
+      "toolResult": {
+        "isError": false,
+        "text": "step 1: skipped (memo)\nstep 2: skipped (memo)\nstep 3: done\n"
+      }
+    },
+    "sideEffects": [
+      "crash process: api step 1",
+      "crash process: api step 2",
+      "resume process: api step 3"
+    ]
+  }
+}
