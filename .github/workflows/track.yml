@@ -13,8 +13,8 @@ jobs:
   track:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -33,7 +33,7 @@ jobs:
           npm run exp -- --offline --update --report report.md || true
       - name: Open a pull request with the report
         if: steps.versions.outputs.current != steps.versions.outputs.latest
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: track/pi-${{ steps.versions.outputs.latest }}
           title: "track: pi ${{ steps.versions.outputs.current }} -> ${{ steps.versions.outputs.latest }}"
