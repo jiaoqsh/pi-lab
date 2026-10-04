@@ -71,7 +71,7 @@ async function pool<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> 
 	return results;
 }
 
-const variants = { "1.0.0 description": PI_CLI, "with await": buildVariant() };
+const variants = { "published description": PI_CLI, "with await": buildVariant() };
 const tasks = Object.entries(variants).flatMap(([variant, cli]) =>
 	MODELS.flatMap((model) =>
 		Array.from({ length: RUNS_PER_CELL }, (_, i) => async () => {

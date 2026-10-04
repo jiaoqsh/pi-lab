@@ -12,6 +12,8 @@ Before it, the description said each helper "resolves to" its result and told th
 
 ## Findings (pi 1.0.0, 2026-10-04)
 
+The `1.0.0 description` rows are the published description (the variant is now labeled `published description`).
+
 | Variant / model | Runs with a promise serialized as `{}` | `const tools` errors | Mean turns | Mean cost |
 |---|---|---|---|---|
 | 1.0.0 description / flash | **6/10** | 3/10 | 4.0 | $0.00124 |
@@ -20,6 +22,8 @@ Before it, the description said each helper "resolves to" its result and told th
 | with `await` / v4-pro | **0/10** | 6/10 | 4.5 | $0.00465 |
 
 All 40 runs answered correctly; the difference is the path. 13 of 20 runs versus 0 of 20 (Fisher's exact test, p < 0.0001). Turns drop by 15% (flash) and 27% (v4-pro), and so does cost.
+
+Rerun on **pi 1.0.2** (same day, the sentence is unchanged): 16/20 runs serialized a promise with the published description (8/10 on each model), 0/20 with `await`; mean turns 4.0 / 5.7 versus 3.6 / 4.6.
 
 Typical failing first scripts:
 
