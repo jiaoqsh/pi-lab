@@ -16,14 +16,13 @@
       "topLevelSystem": "[{\"type\":\"text\",\"text\":\"You are a coding assistant.\\n\\n<mode>read-only</mode>\",\"cache_control\":{\"type\":\"ephemeral\"}}]",
       "tools": [
         "read [cache]",
-        "__pi_deferred_placeholder__ (defer_loading)",
-        "deploy (defer_loading)"
+        "__pi_deferred_placeholder__ (defer_loading)"
       ],
       "items": [
         "user: What is in README.md?",
         "assistant: [{\"type\":\"text\",\"text\":\"It describes the project.\"}]",
         "user: Deploy the api.",
-        "system: [{\"type\":\"text\",\"text\":\"Deployments are now allowed.\\n\\nUpdated system prompt section \\\"mode\\\":\\n\\n<mode>deploy</mode>\"},{\"type\":\"tool_addition\",\"tool\":{\"type\":\"tool_reference\",\"name\":\"deploy\"},\"cache…",
+        "system: [{\"type\":\"text\",\"text\":\"Deployments are now allowed.\\n\\nUpdated system prompt section \\\"mode\\\":\\n\\n<mode>deploy</mode>\"},{\"type\":\"tool_addition\",\"tool\":{\"type\":\"tool_definition\",\"definition\":{\"name\":\"…",
         "system: [] output_config={\"effort\":\"high\"}"
       ]
     },
