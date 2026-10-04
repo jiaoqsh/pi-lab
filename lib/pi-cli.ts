@@ -4,7 +4,8 @@ import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } fro
 import { basename, join } from "node:path";
 import { ROOT, scratchDir } from "./experiment.ts";
 
-const PI_BIN = join(ROOT, "node_modules", ".bin", "pi");
+/** The published CLI entry point. Experiments can pass a modified copy to `runPi` instead. */
+export const PI_CLI = join(ROOT, "node_modules", "@earendil-works", "pi-coding-agent", "dist", "bundle", "cli.js");
 export const SHOP_SERVER = join(ROOT, "fixtures", "shop-mcp-server.ts");
 
 export interface AgentDirOptions {
@@ -70,11 +71,18 @@ export interface PiRun {
 }
 
 /** Run `pi --mode json <prompt>`. stdin is closed: with an open pipe, pi waits for it to end before starting. */
-export function runPi(agentDir: string, cwd: string, args: string[], prompt: string, timeoutMs = 300_000): Promise<PiRun> {
+export function runPi(
+	agentDir: string,
+	cwd: string,
+	args: string[],
+	prompt: string,
+	timeoutMs = 300_000,
+	cli = PI_CLI,
+): Promise<PiRun> {
 	const sessionDir = join(agentDir, "sessions", basename(cwd));
 	mkdirSync(sessionDir, { recursive: true });
 	return new Promise((resolve, reject) => {
-		const child = spawn(PI_BIN, [...args, "--mode", "json", prompt], {
+		const child = spawn(process.execPath, [cli, ...args, "--mode", "json", prompt], {
 			cwd,
 			env: { ...process.env, PI_CODING_AGENT_DIR: agentDir, PI_CODING_AGENT_SESSION_DIR: sessionDir },
 			stdio: ["ignore", "pipe", "pipe"],

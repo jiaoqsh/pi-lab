@@ -1,0 +1,7 @@
+{
+	"title": "A/B: does adding `await` to the codemode description stop models from serializing unawaited promises?",
+	"feature": "codemode",
+	"keys": ["DEEPSEEK_API_KEY"],
+	"timeoutMs": 1800000,
+	"related": ["lib/pi-cli.ts", "fixtures/shop-mcp-server.ts"]
+}
