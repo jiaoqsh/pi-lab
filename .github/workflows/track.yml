@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -33,6 +34,7 @@ jobs:
           npm run exp -- --offline --update --report report.md || true
       - name: Open a pull request with the report
         if: steps.versions.outputs.current != steps.versions.outputs.latest
+        id: pr
         uses: peter-evans/create-pull-request@v8
         with:
           branch: track/pi-${{ steps.versions.outputs.latest }}
@@ -43,3 +45,9 @@ jobs:
             package.json
             package-lock.json
             experiments/*/snapshot.json
+      # Runs CI on the PR branch so the required `offline-experiments` check reports on the PR's head commit.
+      - name: Run CI on the pull request
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref "track/pi-${{ steps.versions.outputs.latest }}"
