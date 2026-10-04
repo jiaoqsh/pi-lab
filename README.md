@@ -16,7 +16,7 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [midconvo-adherence](experiments/midconvo-adherence/NOTES.md) | system messages | DeepSeek | Whether models obey an instruction that arrives mid-conversation |
 | [jev-classify](experiments/jev-classify/NOTES.md) | non-LLM models | TypeSafe | Typed classifier answers with probabilities, about 250 ms per call |
 | [e2e-mcp-discovery](experiments/e2e-mcp-discovery/NOTES.md) | codemode, tool_search | DeepSeek | Real pi + a local MCP server: how models find hidden MCP tools, and what it costs |
-| [codemode-await-ab](experiments/codemode-await-ab/NOTES.md) | codemode | DeepSeek | A/B of one sentence: adding `await` to the codemode description cuts unawaited-promise runs from 13/20 to 0/20 |
+| [codemode-await-ab](experiments/codemode-await-ab/NOTES.md) | codemode | DeepSeek | A/B of one sentence: adding `await` to the codemode description cuts unawaited-promise runs from 13/20 (pi 1.0.0) and 16/20 (1.0.2) to 0/20 |
 | [e2e-virtual-router](experiments/e2e-virtual-router/NOTES.md) | virtual models | DeepSeek, TypeSafe | A router that plans on v4-pro (picked by Jev) and implements on flash |
 
 ## Run
@@ -58,7 +58,7 @@ pi packages are pinned to exact versions in `package.json`.
 - **Every day**, [`track.yml`](.github/workflows/track.yml) checks npm for a newer `@earendil-works/pi-ai`. If there is one, it upgrades all pi packages, reruns the key-free experiments with `--update`, and opens a pull request whose body is the report: which experiments changed, with diffs, and which failed. A failing experiment is a signal too: pi-durable and parts of codemode are experimental and change without notice.
 - **Experiments that call models** vary between runs. They write `last-run.json` (with the pi versions used) and are rerun by hand.
 
-Already waiting on pi's main branch at the time of writing: Anthropic mid-conversation tools defined inline (`b271b0a52`), which should change the first rows of the [midconvo-requests](experiments/midconvo-requests/snapshot.json) snapshot.
+The first tracking PR (pi 1.0.0 -> 1.0.2) caught two changes: Anthropic mid-conversation tools are now defined inline ([midconvo-requests](experiments/midconvo-requests/NOTES.md#history)), and the pi-durable compaction example stopped recovering from a context overflow, traced to the faux provider double-counting cache writes once 1.0.2 started passing a session ID ([durable-examples](experiments/durable-examples/NOTES.md#changed-in-102-the-overflow-retry-no-longer-happens-in-this-example)).
 
 ## Layout
 
