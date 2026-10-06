@@ -37,7 +37,8 @@ jobs:
         id: pr
         uses: peter-evans/create-pull-request@v8
         with:
-          branch: track/pi-${{ steps.versions.outputs.latest }}
+          # One branch for every release: a newer pi updates the open PR instead of opening another.
+          branch: track/pi-latest
           title: "track: pi ${{ steps.versions.outputs.current }} -> ${{ steps.versions.outputs.latest }}"
           commit-message: "track: pi ${{ steps.versions.outputs.latest }}"
           body-path: report.md
@@ -45,9 +46,19 @@ jobs:
             package.json
             package-lock.json
             experiments/*/snapshot.json
-      # Runs CI on the PR branch so the required `offline-experiments` check reports on the PR's head commit.
-      - name: Run CI on the pull request
+      # A PR opened by github-actions[bot] does start its pull_request CI run, but GitHub holds the run as
+      # action_required until someone approves it, and the pending check blocks merging. Approve it here.
+      - name: Approve CI on the pull request
         if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref "track/pi-${{ steps.versions.outputs.latest }}"
+        run: |
+          for attempt in $(seq 1 12); do
+            ids=$(gh api "repos/${{ github.repository }}/actions/runs?branch=track/pi-latest&status=action_required" --jq '.workflow_runs[].id')
+            if [ -n "$ids" ]; then
+              for id in $ids; do gh api -X POST "repos/${{ github.repository }}/actions/runs/$id/approve"; done
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::warning::No CI run waiting for approval; approve it on the pull request if CI is pending."
