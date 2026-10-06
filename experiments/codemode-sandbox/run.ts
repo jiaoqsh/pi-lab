@@ -106,6 +106,12 @@ await scenario("memory-limit", `const big = []; while (true) big.push("x".repeat
 await scenario("missing-await-stringify", `const found = tools.searchLike({}); return JSON.stringify(found);`);
 // `tools` is a parameter of the function the script runs in.
 await scenario("declare-tools-variable", `const tools = 1; return tools;`);
+// Patching a built-in: before pi 1.0.4 this could crash the host (#10444); 1.0.4 freezes built-ins first.
+await scenario(
+	"patch-builtin",
+	`Array.prototype.toJSON = () => "patched";
+	return { stringified: JSON.stringify([1, 2]), patched: Object.isFrozen(Array.prototype) ? "frozen" : "writable" };`,
+);
 
 await sandbox.close();
 await emit({

@@ -163,6 +163,19 @@
       },
       "output": [],
       "calls": []
+    },
+    "patch-builtin": {
+      "ok": true,
+      "value": {
+        "stringified": "[1,2]",
+        "patched": "frozen"
+      },
+      "storeWrites": {
+        "set": {},
+        "delete": []
+      },
+      "output": [],
+      "calls": []
     }
   }
 }
