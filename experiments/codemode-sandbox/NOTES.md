@@ -4,7 +4,7 @@
 
 **What the experiment does.** It drives `CodemodeSandbox` from `@earendil-works/pi-codemode` directly with fake tools (one returns 5000 issues after 1 s) and records how each scenario ends. No model is involved.
 
-## Findings (pi 1.0.0)
+## Findings (pi 1.0.0 to 1.0.4)
 
 | Scenario | Result | Why |
 |---|---|---|
@@ -18,6 +18,7 @@
 | Allocate until it breaks | `InternalError: out of memory`, host unaffected | `memoryLimitBytes` (pi uses 256 MB) |
 | `JSON.stringify(tools.x())` without `await` | **`"{}"`, no error** | A promise serializes to `{}` |
 | `const tools = 1` | `SyntaxError: invalid redefinition of parameter name` | The script is the body of `async (tools, console) => {…}` |
+| `Array.prototype.toJSON = …` | 1.0.4: ignored, `JSON.stringify([1, 2])` is `"[1,2]"`. 1.0.2: the patch took effect (`"patched"`) | 1.0.4 freezes built-ins before the script runs; per pi's changelog such patches could crash the host and leave `execute()` unsettled ([#10444](https://github.com/earendil-works/pi/issues/10444)). The crash itself was not reproduced here |
 
 ## How it works
 
@@ -38,5 +39,8 @@ Source (v1.0.0): [`runtime/worker.ts`](https://github.com/earendil-works/pi/blob
 The last two rows matter in practice: in [e2e-mcp-discovery](../e2e-mcp-discovery/NOTES.md) every DeepSeek run that used codemode wrote `searchTools(...)` without `await` and got `{}`. pi 1.0's prompt shrink (commit `6f1072cc0`) removed "resolves to" and `await searchTools(query)` from the codemode tool description, so the description no longer says these helpers are async. A local patch that makes `Promise.prototype.toJSON` throw an "add await" hint fixed recovery in one turn; it was not upstreamed (low impact).
 
 ## Watch on upgrades
+
+Added in pi 1.0.4: the `patch-builtin` scenario, after pi froze built-ins.
+
 
 The `missing-await-stringify` and `declare-tools-variable` scenarios change if pi improves these errors. Any change to the error texts, the timeout mechanism, or the declaration rendering shows up in `snapshot.json`.
