@@ -32,12 +32,31 @@ const found = searchTools("customer", { limit: 30 });
 return JSON.stringify(found, null, 2);        // "{}"
 ```
 
+## GPT-5.6-sol (pi 1.0.4, 2026-10-06)
+
+Run through a third-party OpenAI-compatible relay with the Responses API, the API pi uses for OpenAI models (`AB_MODELS=openai-relay/gpt-5.6-sol`, see `run.ts`). Two batches of 10 runs per variant, recorded in [`gpt-5.6-sol.json`](gpt-5.6-sol.json).
+
+| Variant | Runs with a promise serialized as `{}` | `const tools` errors | Mean turns | Mean prompt tokens |
+|---|---|---|---|---|
+| published description | **6/20** | 0/20 | 3.85 | 27,835 |
+| with `await` | **0/20** | 0/20 | 3.50 | 26,587 |
+
+Fisher's exact test: p = 0.02. GPT misses the `await` less often than DeepSeek (30% versus 65-80%), but the same way:
+
+```js
+const t = searchTools('shop customer lookup', {limit:10}); text(t);   // "{}"
+```
+
+GPT never named a variable `tools`, so the second problem below looks model-specific.
+
+Caveat: the relay serves its own default instructions when a request has none. With pi's instructions present it echoed them unchanged, but hidden additions cannot be ruled out from the outside.
+
 ## A second, independent problem
 
 `const tools = …` fails with `SyntaxError: invalid redefinition of parameter name` because scripts run as the body of `async (tools, console) => {…}`. It happens in about half of the runs with either description: `tools` is the obvious name for a list of search results. The `await` sentence does not affect it. Several such scripts also lacked `await`; the syntax error hides that, so the promise rate in the 1.0.0 rows is a lower bound.
 
 ## Limits
 
-Only DeepSeek models were tested (the keys at hand). Stronger models may rarely miss the `await`. The task is small and discovery-heavy, which is where these helpers are used.
+DeepSeek (flash, v4-pro) through DeepSeek's API and GPT-5.6-sol through a relay; Claude was not tested. The task is small and discovery-heavy, which is where these helpers are used.
 
 Rerun: `npm run exp -- codemode-await-ab` (about a minute, about $0.15). `AB_RUNS=20` for more runs per cell.

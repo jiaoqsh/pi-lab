@@ -16,7 +16,7 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [midconvo-adherence](experiments/midconvo-adherence/NOTES.md) | system messages | DeepSeek | Whether models obey an instruction that arrives mid-conversation |
 | [jev-classify](experiments/jev-classify/NOTES.md) | non-LLM models | TypeSafe | Typed classifier answers with probabilities, about 250 ms per call |
 | [e2e-mcp-discovery](experiments/e2e-mcp-discovery/NOTES.md) | codemode, tool_search | DeepSeek | Real pi + a local MCP server: how models find hidden MCP tools, and what it costs |
-| [codemode-await-ab](experiments/codemode-await-ab/NOTES.md) | codemode | DeepSeek | A/B of one sentence: adding `await` to the codemode description cuts unawaited-promise runs from 13/20 (pi 1.0.0) and 16/20 (1.0.2) to 0/20 |
+| [codemode-await-ab](experiments/codemode-await-ab/NOTES.md) | codemode | DeepSeek | A/B of one sentence: adding `await` to the codemode description cuts unawaited-promise runs to 0/20, from 13/20 and 16/20 (DeepSeek) and 6/20 (GPT-5.6-sol) |
 | [e2e-virtual-router](experiments/e2e-virtual-router/NOTES.md) | virtual models | DeepSeek, TypeSafe | A router that plans on v4-pro (picked by Jev) and implements on flash |
 
 ## Run

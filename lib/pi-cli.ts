@@ -14,12 +14,15 @@ export interface AgentDirOptions {
 	/** Extension files copied into the agent's extensions/ directory, where pi discovers them. */
 	extensions?: string[];
 	settings?: Record<string, unknown>;
+	/** Written as models.json: custom providers such as an OpenAI-compatible endpoint. */
+	models?: Record<string, unknown>;
 }
 
 /** A fresh PI_CODING_AGENT_DIR: settings.json, mcp.json, and extensions, nothing from ~/.pi. */
 export function createAgentDir(name: string, options: AgentDirOptions = {}): string {
 	const dir = scratchDir(`agent-${name}`);
 	writeFileSync(join(dir, "settings.json"), JSON.stringify(options.settings ?? {}, null, 2));
+	if (options.models) writeFileSync(join(dir, "models.json"), JSON.stringify(options.models, null, 2));
 	if (options.shopExposure) {
 		const shop = { command: process.execPath, args: [SHOP_SERVER], description: "Shop backend with orders and customers" };
 		const server = options.shopExposure === "codemode" ? shop : { ...shop, exposure: options.shopExposure };

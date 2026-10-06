@@ -6,11 +6,30 @@ import { dirname, join } from "node:path";
 import { emit, log, requireEnv, ROOT, scratchDir, truncate } from "../../lib/experiment.ts";
 import { createAgentDir, messagesOf, PI_CLI, type PiRun, runPi, textOf, usageOf } from "../../lib/pi-cli.ts";
 
-requireEnv("DEEPSEEK_API_KEY");
-
 const RUNS_PER_CELL = Number(process.env.AB_RUNS ?? 10);
 const CONCURRENCY = 8;
-const MODELS = ["deepseek-flash", "deepseek-v4-pro"];
+/**
+ * `provider/id` pairs, default the two DeepSeek models. `openai-relay/<id>` runs through the OpenAI-compatible endpoint
+ * in OPENAI_BASE_URL with the Responses API, which pi uses for OpenAI models: AB_MODELS=openai-relay/gpt-5.6-sol.
+ */
+const MODELS = (process.env.AB_MODELS ?? "deepseek/deepseek-flash,deepseek/deepseek-v4-pro").split(",").map((m) => m.trim());
+if (MODELS.some((model) => model.startsWith("deepseek/"))) requireEnv("DEEPSEEK_API_KEY");
+const RELAY = "openai-relay";
+const relayIds = MODELS.filter((model) => model.startsWith(`${RELAY}/`)).map((model) => model.slice(RELAY.length + 1));
+if (relayIds.length) requireEnv("OPENAI_API_KEY");
+// The key stays an environment reference: pi interpolates `$OPENAI_API_KEY` at request time.
+const customModels = relayIds.length
+	? {
+			providers: {
+				[RELAY]: {
+					baseUrl: requireEnv("OPENAI_BASE_URL"),
+					api: "openai-responses",
+					apiKey: "$OPENAI_API_KEY",
+					models: relayIds.map((id) => ({ id, reasoning: true })),
+				},
+			},
+		}
+	: undefined;
 const PROMPT = "Using the shop backend, look up customer C16 and tell me their tier.";
 
 const ORIGINAL =
@@ -75,8 +94,8 @@ const variants = { "published description": PI_CLI, "with await": buildVariant()
 const tasks = Object.entries(variants).flatMap(([variant, cli]) =>
 	MODELS.flatMap((model) =>
 		Array.from({ length: RUNS_PER_CELL }, (_, i) => async () => {
-			const agentDir = createAgentDir(`ab-${i}`, { shopExposure: "codemode" });
-			const run = await runPi(agentDir, scratchDir("cwd"), ["--model", `deepseek/${model}`], PROMPT, 300_000, cli);
+			const agentDir = createAgentDir(`ab-${i}`, { shopExposure: "codemode", models: customModels });
+			const run = await runPi(agentDir, scratchDir("cwd"), ["--model", model], PROMPT, 300_000, cli);
 			log(`${variant} ${model} #${i + 1}: exit ${run.exitCode}`);
 			return { variant, model, ...measure(run) };
 		}),
@@ -96,6 +115,7 @@ for (const variant of Object.keys(variants)) {
 			runsWithParameterRedefinition: cell.filter((run) => run.parameterRedefinition > 0).length,
 			correct: cell.filter((run) => run.correct).length,
 			meanTurns: mean(cell.map((run) => run.turns)),
+			meanPromptTokens: Math.round(mean(cell.map((run) => run.inputTokens + run.cacheReadTokens))),
 			meanCostUsd: Math.round(mean(cell.map((run) => run.costUsd * 1e5))) / 1e5,
 		};
 	}
