@@ -9,6 +9,10 @@ GITHUB_TOKEN=$(gh auth token) node --env-file=.env analyst/analyze.ts \
 
 `report.md` is the report `npm run exp -- --offline --report report.md` writes, which is also the body of a tracking PR. Output goes to `.tmp/analyst/<from>-<to>/`: `summary.md` and one draft per changed experiment. Needs `DEEPSEEK_API_KEY`; `GITHUB_TOKEN` avoids GitHub's 60 requests an hour for unauthenticated calls.
 
+## In CI
+
+[`analyze.yml`](../.github/workflows/analyze.yml) runs the analyst on a PR's report and posts `summary.md` with the drafts as a PR comment. [`track.yml`](../.github/workflows/track.yml) calls it after opening or updating a tracking PR in which an experiment changed or failed. It needs the `DEEPSEEK_API_KEY` repository secret and skips itself without it. By hand: Actions → "analyze tracking PR" → Run workflow, with the PR number and the two versions (first run: [the comment on PR #1](https://github.com/jiaoqsh/pi-lab/pull/1)). In CI it reads today's NOTES.md, so on old PRs it can restate what the notes already say; the blind evaluation below uses `--notes-rev`.
+
 ## Design
 
 ```
