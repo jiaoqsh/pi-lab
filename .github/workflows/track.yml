@@ -13,6 +13,12 @@ permissions:
 jobs:
   track:
     runs-on: ubuntu-latest
+    outputs:
+      pr: ${{ steps.pr.outputs.pull-request-number }}
+      operation: ${{ steps.pr.outputs.pull-request-operation }}
+      current: ${{ steps.versions.outputs.current }}
+      latest: ${{ steps.versions.outputs.latest }}
+      changed: ${{ steps.changed.outputs.changed }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -32,6 +38,15 @@ jobs:
             @earendil-works/pi-coding-agent@latest @earendil-works/chord@latest @earendil-works/pi-env@latest
           # Failed or changed experiments are the point of this run: report them in the PR instead of failing.
           npm run exp -- --offline --update --report report.md || true
+      - name: Did any experiment change or fail?
+        id: changed
+        if: steps.versions.outputs.current != steps.versions.outputs.latest
+        run: |
+          if grep -qE '^\| [a-z0-9-]+ \| (changed|updated|failed) \|' report.md; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Open a pull request with the report
         if: steps.versions.outputs.current != steps.versions.outputs.latest
         id: pr
@@ -62,3 +77,14 @@ jobs:
             sleep 5
           done
           echo "::warning::No CI run waiting for approval; approve it on the pull request if CI is pending."
+
+  # Explain changed results on the PR (needs the DEEPSEEK_API_KEY secret; skipped without it).
+  analyze:
+    needs: track
+    if: needs.track.outputs.changed == 'true' && (needs.track.outputs.operation == 'created' || needs.track.outputs.operation == 'updated')
+    uses: ./.github/workflows/analyze.yml
+    with:
+      pr: ${{ needs.track.outputs.pr }}
+      from: ${{ needs.track.outputs.current }}
+      to: ${{ needs.track.outputs.latest }}
+    secrets: inherit
