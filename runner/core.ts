@@ -61,7 +61,7 @@ export function loadExperiments(): Experiment[] {
 }
 
 export function piVersions(): string {
-	const names = ["pi-ai", "pi-durable", "pi-codemode", "pi-coding-agent"];
+	const names = ["pi-ai", "pi-durable", "pi-codemode", "pi-coding-agent", "pi-env"];
 	return names
 		.map((name) => {
 			const file = join(ROOT, "node_modules", "@earendil-works", name, "package.json");

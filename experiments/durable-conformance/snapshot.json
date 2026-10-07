@@ -1,0 +1,84 @@
+{
+  "suites": {
+    "env": [
+      "binary reader reads byte ranges of the opened file",
+      "binary reader scans lines like decoding the whole file",
+      "binary reader keeps reading the file it opened after a rename",
+      "binary reader refuses directories, missing files and aborted opens",
+      "directory reader pages every entry exactly once",
+      "directory reader reports the end and refuses use after close",
+      "directory reader refuses missing paths and files",
+      "directory reader skips entries removed during enumeration",
+      "watch reports a missing file's creation, changes, replacement and removal",
+      "watch reports a missing target whose ancestors are created",
+      "watch follows directories created together with their contents",
+      "watch keeps watching a path whose parent is renamed and recreated",
+      "watch skips excluded entries and reports a rename out of them",
+      "watch keeps recursive coverage where a non-recursive target overlaps",
+      "watch follows a directory replaced at the same path",
+      "watch stops reporting once closed",
+      "argv exec passes arguments to the program without shell parsing",
+      "exec reports the stream of every chunk in both forms",
+      "argv exec honors cwd and exit codes",
+      "argv exec reports missing programs and empty argv as spawn errors",
+      "windowed exec keeps the exact tail and counts what it skips",
+      "argv exec distinguishes timeout from abort",
+      "binary reader follows symlinks unless noFollow refuses the final one",
+      "watch reports changes to the file a watched symbolic link points to"
+    ],
+    "storage": [
+      "reserves ID 1 for the immutable root conversation",
+      "commits mixed table writes atomically and rolls all of them back on failure",
+      "detaches retained writes and every returned record",
+      "detaches prototype-like JSON keys without changing object prototypes",
+      "indexes entries committed out of ID order",
+      "continues an entry cursor below its last item after a newer commit",
+      "paginates conversations by opaque cursor in ascending ID order",
+      "filters and pages conversations by durable owner edges",
+      "scans deep fork history newest-first through every ancestor cap",
+      "replaces complete task records and pages filtered task scans",
+      "stores owners and scans waiting and completing tasks by status",
+      "indexes request IDs per conversation and replaces complete submission records",
+      "stores passive write submissions without input-only lifecycle states",
+      "reconstructs rewindable documents and preserves half-open incarnations",
+      "streams long document tails across root replacement deltas",
+      "copies stored document bases independently and rejects ambiguous sources",
+      "uses bases for version transitions and rejects historical reads of current-only documents",
+      "indexes logical addresses and exact-scope scans independently",
+      "keeps document lifecycle failures atomic and gives create-plus-retire an empty lifetime",
+      "rolls back record tables and secondary indexes when a document command fails",
+      "keeps indexed string identities lossless",
+      "keeps one global record ID namespace and rejects exhausted ID minting",
+      "rejects every operation after close"
+    ]
+  },
+  "env": {
+    "NodeExecutionEnv": {
+      "cases": 24,
+      "passed": 24,
+      "failed": {}
+    },
+    "RemoteExecutionEnv (pi-env daemon, local pipe)": {
+      "cases": 24,
+      "passed": 24,
+      "failed": {}
+    }
+  },
+  "storage": {
+    "MemoryStorage": {
+      "cases": 23,
+      "passed": 23,
+      "failed": {}
+    },
+    "JSONL storage": {
+      "cases": 23,
+      "passed": 23,
+      "failed": {}
+    },
+    "SQLite storage": {
+      "cases": 23,
+      "passed": 23,
+      "failed": {}
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+	"title": "pi-durable's own conformance suites on each ExecutionEnv (local Node, pi-env daemon) and Storage (memory, JSONL, SQLite)",
+	"feature": "durable",
+	"keys": [],
+	"timeoutMs": 600000
+}

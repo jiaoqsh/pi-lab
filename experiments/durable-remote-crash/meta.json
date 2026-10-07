@@ -1,0 +1,7 @@
+{
+	"title": "Tools on a pi-env daemon: the daemon or the harness dies mid-command",
+	"feature": "durable",
+	"keys": [],
+	"timeoutMs": 120000,
+	"related": ["lib/pi-env.ts"]
+}

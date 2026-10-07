@@ -1,0 +1,49 @@
+{
+  "command": "sleep 3 && echo finished > marker.txt",
+  "A: daemon process killed mid-command": {
+    "status": "done",
+    "toolResults": [
+      {
+        "isError": true,
+        "text": "<harness>\n[error] pi-env connection lost\n</harness>"
+      },
+      {
+        "isError": false,
+        "text": "second call"
+      }
+    ],
+    "markerWritten": true,
+    "oldDaemonAlive": false,
+    "newDaemonStarted": true
+  },
+  "A2: transport cut mid-command (daemon alive)": {
+    "status": "done",
+    "toolResults": [
+      {
+        "isError": true,
+        "text": "<harness>\n[error] pi-env connection lost\n</harness>"
+      },
+      {
+        "isError": false,
+        "text": "second call"
+      }
+    ],
+    "markerWritten": false,
+    "oldDaemonAlive": false,
+    "newDaemonStarted": true
+  },
+  "B: harness process dies mid-command": {
+    "crashExitCode": 1,
+    "daemonAliveAfterCrash": false,
+    "markerWritten": false,
+    "afterRestart": {
+      "status": "done",
+      "toolResults": [
+        {
+          "isError": true,
+          "text": "<harness>\n[error] Tool bash was interrupted and may have partially run\n</harness>"
+        }
+      ]
+    }
+  }
+}

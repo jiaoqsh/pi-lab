@@ -29,7 +29,7 @@ jobs:
         run: |
           npm install --save-exact --ignore-scripts \
             @earendil-works/pi-ai@latest @earendil-works/pi-durable@latest @earendil-works/pi-codemode@latest \
-            @earendil-works/pi-coding-agent@latest @earendil-works/chord@latest
+            @earendil-works/pi-coding-agent@latest @earendil-works/chord@latest @earendil-works/pi-env@latest
           # Failed or changed experiments are the point of this run: report them in the PR instead of failing.
           npm run exp -- --offline --update --report report.md || true
       - name: Open a pull request with the report
