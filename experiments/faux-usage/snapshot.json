@@ -1,0 +1,38 @@
+{
+  "without sessionId": {
+    "first request": {
+      "input": 1002,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "output": 1,
+      "totalTokens": 1003,
+      "promptCounted": 1002
+    },
+    "second request (extends the first)": {
+      "input": 1107,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "output": 1,
+      "totalTokens": 1108,
+      "promptCounted": 1107
+    }
+  },
+  "with sessionId": {
+    "first request": {
+      "input": 1002,
+      "cacheRead": 0,
+      "cacheWrite": 1002,
+      "output": 1,
+      "totalTokens": 2005,
+      "promptCounted": 2004
+    },
+    "second request (extends the first)": {
+      "input": 105,
+      "cacheRead": 1002,
+      "cacheWrite": 106,
+      "output": 1,
+      "totalTokens": 1214,
+      "promptCounted": 1213
+    }
+  }
+}

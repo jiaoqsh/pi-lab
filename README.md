@@ -12,6 +12,7 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [midconvo-requests](experiments/midconvo-requests/NOTES.md) | system messages | – | One mid-conversation prompt/tool change as Anthropic, OpenAI, Kimi, DeepSeek, and Gemini request bodies |
 | [durable-crash](experiments/durable-crash/NOTES.md) | pi-durable | – | Kill the process mid tool call: `replay: "safe"` vs default, memos, when partial output survives |
 | [durable-examples](experiments/durable-examples/NOTES.md) | pi-durable | – | Official examples as a baseline: busy inbox (steer/follow-up), background subagents on SQLite, compaction |
+| [faux-usage](experiments/faux-usage/NOTES.md) | pi-ai faux provider | – | With a `sessionId`, the faux provider counts cache-written prompt tokens twice; why pi-durable's compaction example changed in 1.0.2 |
 | [cache-deepseek](experiments/cache-deepseek/NOTES.md) | system messages | DeepSeek | Measured cache hits: in place 96%, collapsed 42%, tool list resent 48% |
 | [midconvo-adherence](experiments/midconvo-adherence/NOTES.md) | system messages | DeepSeek | Whether models obey an instruction that arrives mid-conversation |
 | [jev-classify](experiments/jev-classify/NOTES.md) | non-LLM models | TypeSafe | Typed classifier answers with probabilities, about 250 ms per call |
