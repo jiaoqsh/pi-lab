@@ -22,6 +22,10 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [codemode-await-ab](experiments/codemode-await-ab/NOTES.md) | codemode | DeepSeek | A/B of one sentence: adding `await` to the codemode description cuts unawaited-promise runs to 0/20, from 13/20 and 16/20 (DeepSeek) and 6/20 (GPT-5.6-sol) |
 | [e2e-virtual-router](experiments/e2e-virtual-router/NOTES.md) | virtual models | DeepSeek, TypeSafe | A router that plans on v4-pro (picked by Jev) and implements on flash |
 
+## Release analyst
+
+[`analyst/`](analyst/README.md) is an application built on pi-durable: for a tracking report, it sends one subagent per changed experiment to explain the change from pi's changelogs, commits, and source, and drafts NOTES.md updates and a PR summary. On the 1.0.0 -> 1.0.2 upgrade, with notes from before that upgrade, it found both known causes, quoting lines that check out in the source; a run killed midway resumes without repeating finished subagents.
+
 ## Run
 
 Node 22.18 or newer (TypeScript runs natively).
@@ -75,6 +79,7 @@ experiments/<name>/
 fixtures/          shop MCP server, virtual-model router extension
 lib/               experiment helpers, running the pi CLI in an isolated config dir
 runner/            the experiment runner (core.ts, shared with the UI) and its diff
+analyst/           the release analyst (pi-durable application)
 ui/                local web UI: server.ts (node:http) and index.html (no build step)
 ```
 
