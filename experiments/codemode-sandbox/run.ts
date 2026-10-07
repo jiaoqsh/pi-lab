@@ -55,10 +55,11 @@ function summarize(result: CodemodeResult) {
 }
 
 const scenarios: Record<string, unknown> = {};
-async function scenario(name: string, code: string, store: Record<string, unknown> = {}) {
+/** `timeoutMs` overrides the sandbox default (1.5 s, which the infinite-loop scenario relies on). */
+async function scenario(name: string, code: string, store: Record<string, unknown> = {}, timeoutMs?: number) {
 	log(`scenario ${name}`);
 	const started = performance.now();
-	const result = await sandbox.execute(code, { store });
+	const result = await sandbox.execute(code, { store, timeoutMs });
 	scenarios[name] = summarize(result);
 	return { result, ms: performance.now() - started };
 }
@@ -101,7 +102,8 @@ await scenario(
 );
 await scenario("stalled-promise", `await new Promise(() => {}); return "unreachable";`);
 await scenario("infinite-loop-hits-timeout", `console.log("spinning"); while (true) {}`);
-await scenario("memory-limit", `const big = []; while (true) big.push("x".repeat(1024 * 1024));`);
+// Filling 64 MB takes a few hundred ms, but more than 1.5 s on a loaded machine: give it its own deadline.
+await scenario("memory-limit", `const big = []; while (true) big.push("x".repeat(1024 * 1024));`, {}, 30_000);
 // Missing await: a promise serialized to JSON. pi 1.0 yields "{}" silently.
 await scenario("missing-await-stringify", `const found = tools.searchLike({}); return JSON.stringify(found);`);
 // `tools` is a parameter of the function the script runs in.

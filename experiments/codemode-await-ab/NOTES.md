@@ -25,6 +25,8 @@ All 40 runs answered correctly; the difference is the path. 13 of 20 runs versus
 
 Rerun on **pi 1.0.2** (same day, the sentence is unchanged): 16/20 runs serialized a promise with the published description (8/10 on each model), 0/20 with `await`; mean turns 4.0 / 5.7 versus 3.6 / 4.6.
 
+Rerun on **pi 1.0.4** (2026-10-07, sentence still unchanged): 13/20 (flash 8/10, v4-pro 5/10) versus 0/20; mean turns 4.4 / 5.8 versus 3.8 / 4.5. This is the baseline to compare with once the upstream fix ships.
+
 Typical failing first scripts:
 
 ```js

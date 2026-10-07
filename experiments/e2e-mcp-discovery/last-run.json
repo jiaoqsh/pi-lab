@@ -1,25 +1,24 @@
 {
-  "ranAt": "2026-10-03T08:56:58.695Z",
-  "versions": "pi-ai@1.0.0, pi-durable@1.0.0, pi-codemode@1.0.0, pi-coding-agent@1.0.0",
+  "ranAt": "2026-10-07T07:59:26.855Z",
+  "versions": "pi-ai@1.0.4, pi-durable@1.0.4, pi-codemode@1.0.4, pi-coding-agent@1.0.4, pi-env@1.0.4",
   "result": {
     "lookup codemode deepseek-flash #1": {
       "exposure": "codemode",
       "model": "deepseek-flash",
       "exitCode": 0,
       "correct": true,
-      "turns": 5,
-      "inputTokens": 3813,
-      "cacheReadTokens": 10368,
-      "outputTokens": 388,
-      "costUsd": 0.0017,
+      "turns": 4,
+      "inputTokens": 3268,
+      "cacheReadTokens": 8448,
+      "outputTokens": 258,
+      "costUsd": 0.0013,
       "steps": [
-        "codemode: const tools = searchTools('customer', { namespace: 'mcp__shop' });\nreturn JSON.stringify(tools, null, 2);",
-        "codemode: const result = searchTools('customer', { namespace: 'mcp__shop' });\nreturn JSON.stringify(result, null, 2);",
-        "codemode: const all = ALL_TOOLS;\nreturn JSON.stringify(all, null, 2);",
-        "codemode: const result = await tools.mcp__shop__get_customer({ id: 'C16' });\nreturn JSON.stringify(result, null, 2);"
+        "codemode: const matches = searchTools(\"customer\");\ntext(matches);\n",
+        "codemode: text(ALL_TOOLS);\n",
+        "codemode: const result = await tools.mcp__shop__get_customer({ id: \"C16\" });\ntext(result);\n"
       ],
       "emptyObjectResults": 1,
-      "parameterRedefinitionErrors": 1,
+      "parameterRedefinitionErrors": 0,
       "truncatedOutputs": 0,
       "toolsAddedMidConversation": [],
       "answer": "Customer **C16** is on the **basic** tier."
@@ -30,20 +29,20 @@
       "exitCode": 0,
       "correct": true,
       "turns": 4,
-      "inputTokens": 3641,
-      "cacheReadTokens": 7808,
-      "outputTokens": 310,
-      "costUsd": 0.0015,
+      "inputTokens": 2334,
+      "cacheReadTokens": 7680,
+      "outputTokens": 347,
+      "costUsd": 0.0012,
       "steps": [
-        "codemode: const found = searchTools(\"customer\", { limit: 20 });\ntext(JSON.stringify(found, null, 2));",
-        "codemode: try { text(JSON.stringify(describeNamespace(\"mcp__shop\"), null, 2)); } catch(e) { text(\"ns err: \" + e.message); }\ntext(\"…",
-        "codemode: const res = await tools.mcp__shop__get_customer({ id: \"C16\" });\ntext(JSON.stringify(res, null, 2));"
+        "codemode: const tools = searchTools(\"customer\", { limit: 20 });\nreturn tools;",
+        "codemode: const found = searchTools(\"customer\", { limit: 20 });\nreturn found;",
+        "codemode: const result = await tools.mcp__shop__get_customer({ id: \"C16\" });\nreturn result;"
       ],
-      "emptyObjectResults": 1,
-      "parameterRedefinitionErrors": 0,
+      "emptyObjectResults": 0,
+      "parameterRedefinitionErrors": 1,
       "truncatedOutputs": 0,
       "toolsAddedMidConversation": [],
-      "answer": "Customer **C16** (Customer 16) is on the **basic** tier."
+      "answer": "Customer **C16** (Customer 16) has the tier: **basic**."
     },
     "lookup tool_search deepseek-flash": {
       "exposure": "deferred",
@@ -51,12 +50,12 @@
       "exitCode": 0,
       "correct": true,
       "turns": 3,
-      "inputTokens": 2480,
-      "cacheReadTokens": 3840,
-      "outputTokens": 225,
-      "costUsd": 0.001,
+      "inputTokens": 1932,
+      "cacheReadTokens": 4352,
+      "outputTokens": 149,
+      "costUsd": 0.0008,
       "steps": [
-        "tool_search({\"query\":\"shop backend lookup customer by ID\"})",
+        "tool_search({\"query\":\"customer lookup tier\"})",
         "mcp__shop__get_customer({\"id\":\"C16\"})"
       ],
       "emptyObjectResults": 0,
@@ -66,7 +65,7 @@
         "mcp__shop__get_customer",
         "mcp__shop__list_orders"
       ],
-      "answer": "Customer **C16** is on the **basic** tier."
+      "answer": "Customer **C16** has tier **basic**."
     },
     "lookup codemode deepseek-v4-pro #1": {
       "exposure": "codemode",
@@ -74,44 +73,47 @@
       "exitCode": 0,
       "correct": true,
       "turns": 6,
-      "inputTokens": 3736,
-      "cacheReadTokens": 13696,
-      "outputTokens": 489,
-      "costUsd": 0.0075,
+      "inputTokens": 3058,
+      "cacheReadTokens": 15232,
+      "outputTokens": 511,
+      "costUsd": 0.0067,
       "steps": [
-        "codemode: const ns = describeNamespace('mcp__shop');\nconsole.log(JSON.stringify(ns, null, 2));",
-        "codemode: const tools = searchTools('shop', {});\nconsole.log(JSON.stringify(tools, null, 2));",
-        "codemode: const found = searchTools('shop', { limit: 50 });\nconsole.log(JSON.stringify(found, null, 2));",
+        "codemode: const tools = searchTools(\"customer\", { namespace: \"mcp__shop\" });\nconsole.log(JSON.stringify(tools, null, 2));",
+        "codemode: const results = searchTools(\"customer\", { namespace: \"mcp__shop\" });\nconsole.log(JSON.stringify(results, null, 2));",
+        "codemode: console.log(JSON.stringify(describeNamespace(\"mcp__shop\"), null, 2));",
+        "codemode: console.log(JSON.stringify(searchTools(\"shop\", {}), null, 2));",
         "codemode: console.log(JSON.stringify(ALL_TOOLS, null, 2));",
-        "codemode: const r = await tools.mcp__shop__get_customer({ id: 'C16' });\nconsole.log(JSON.stringify(r, null, 2));"
+        "codemode: const result = await tools.mcp__shop__get_customer({ id: \"C16\" });\nconsole.log(JSON.stringify(result, null, 2));"
       ],
-      "emptyObjectResults": 2,
+      "emptyObjectResults": 3,
       "parameterRedefinitionErrors": 1,
       "truncatedOutputs": 0,
       "toolsAddedMidConversation": [],
-      "answer": "Customer **C16** (\"Customer 16\") has tier **basic**."
+      "answer": "Customer C16's tier is **basic**."
     },
     "lookup codemode deepseek-v4-pro #2": {
       "exposure": "codemode",
       "model": "deepseek-v4-pro",
       "exitCode": 0,
       "correct": true,
-      "turns": 5,
-      "inputTokens": 3676,
-      "cacheReadTokens": 10880,
-      "outputTokens": 381,
+      "turns": 6,
+      "inputTokens": 3255,
+      "cacheReadTokens": 14848,
+      "outputTokens": 464,
       "costUsd": 0.0068,
       "steps": [
-        "codemode: const tools = searchTools('shop', {namespace: 'codemode'});\nreturn JSON.stringify(tools, null, 2);",
-        "codemode: const shopTools = searchTools('shop', {namespace: 'codemode'});\nreturn JSON.stringify(shopTools, null, 2);",
-        "codemode: return JSON.stringify({\n  all: ALL_TOOLS,\n  ns: describeNamespace('codemode'),\n  shop: describeNamespace('mcp__shop'),\n}…",
+        "codemode: const tools = searchTools('shop', { namespace: 'mcp__shop' });\nreturn JSON.stringify(tools, null, 2);",
+        "codemode: const t = searchTools('shop', { namespace: 'mcp__shop' });\nreturn JSON.stringify(t, null, 2);",
+        "codemode: const all = searchTools('shop');\nreturn JSON.stringify(all, null, 2);",
+        "codemode: const ns = describeNamespace('mcp__shop');\nreturn JSON.stringify(ns, null, 2);",
+        "codemode: return JSON.stringify(ALL_TOOLS, null, 2);",
         "codemode: const r = await tools.mcp__shop__get_customer({ id: 'C16' });\nreturn JSON.stringify(r, null, 2);"
       ],
-      "emptyObjectResults": 1,
+      "emptyObjectResults": 3,
       "parameterRedefinitionErrors": 1,
       "truncatedOutputs": 0,
       "toolsAddedMidConversation": [],
-      "answer": "Customer C16 has tier **basic**."
+      "answer": "Customer **C16** has tier **basic**."
     },
     "lookup tool_search deepseek-v4-pro": {
       "exposure": "deferred",
@@ -119,12 +121,12 @@
       "exitCode": 0,
       "correct": true,
       "turns": 3,
-      "inputTokens": 2417,
-      "cacheReadTokens": 4096,
-      "outputTokens": 138,
-      "costUsd": 0.0039,
+      "inputTokens": 2036,
+      "cacheReadTokens": 4480,
+      "outputTokens": 143,
+      "costUsd": 0.0035,
       "steps": [
-        "tool_search({\"query\":\"shop backend look up customer by id\"})",
+        "tool_search({\"query\":\"shop backend look up customer tier\"})",
         "mcp__shop__get_customer({\"id\":\"C16\"})"
       ],
       "emptyObjectResults": 0,
@@ -134,35 +136,32 @@
         "mcp__shop__get_customer",
         "mcp__shop__list_orders"
       ],
-      "answer": "Customer C16 is on the **basic** tier."
+      "answer": "Customer C16 has tier **basic**."
     },
     "refunds codemode deepseek-v4-pro": {
       "exposure": "codemode",
       "model": "deepseek-v4-pro",
       "exitCode": 0,
       "correct": true,
-      "turns": 10,
-      "inputTokens": 18044,
-      "cacheReadTokens": 103424,
-      "outputTokens": 2623,
-      "costUsd": 0.0388,
+      "turns": 8,
+      "inputTokens": 16877,
+      "cacheReadTokens": 35968,
+      "outputTokens": 1051,
+      "costUsd": 0.028,
       "steps": [
-        "codemode: const t = searchTools(\"\", { namespace: \"mcp__shop\" });\nreturn JSON.stringify(t, null, 2);",
+        "codemode: const tools = searchTools(\"\", { namespace: \"mcp__shop\" });\nreturn JSON.stringify(tools, null, 2);",
+        "codemode: const list = searchTools(\"\", { namespace: \"mcp__shop\" });\nreturn JSON.stringify(list, null, 2);",
         "codemode: return JSON.stringify(describeNamespace(\"mcp__shop\"), null, 2);",
-        "codemode: return JSON.stringify(Object.keys(ALL_TOOLS), null, 2);",
+        "codemode: return JSON.stringify(Object.keys(ALL_TOOLS || {}), null, 2);",
         "codemode: return JSON.stringify(ALL_TOOLS, null, 2);",
         "codemode: const r = await tools.mcp__shop__list_orders({});\nreturn JSON.stringify(r, null, 2);",
-        "codemode: const r = await tools.mcp__shop__list_orders({});\nconst text = r.content.find(c => c.type === \"text\").text;\nconst data =…",
-        "codemode: const r = await tools.mcp__shop__list_orders({});\nconst data = JSON.parse(r.content.find(c => c.type === \"text\").text);\n…",
-        "codemode: const r = await tools.mcp__shop__get_customer({ id: \"C16\" });\nreturn r.content.find(c => c.type === \"text\").text;",
-        "codemode: const r = await tools.mcp__shop__list_orders({});\nconst data = JSON.parse(r.content.find(c => c.type === \"text\").text);\n…",
-        "codemode: const r = await tools.mcp__shop__list_orders({});\nconst data = JSON.parse(r.content.find(c => c.type === \"text\").text);\n…"
+        "codemode: const r = await tools.mcp__shop__list_orders({});\nconst text = r.content[0].text;\nconst data = JSON.parse(text);\nconst o…"
       ],
       "emptyObjectResults": 2,
-      "parameterRedefinitionErrors": 0,
+      "parameterRedefinitionErrors": 1,
       "truncatedOutputs": 1,
       "toolsAddedMidConversation": [],
-      "answer": "Using the shop backend (`mcp__shop`), here are the results:\n\n**Total USD amount of refunded orders: $152,100** (600 refunded orders)\n\n**Customer with the largest refunded total — there is a tie:**\n- **Customer 16** (id C16, tier **basic**) — $19,575\n- **Customer 36** (id C36, tier **gold**) — $19,57…"
+      "answer": "## Shop backend analysis\n\n**Total USD amount of refunded orders:** $152,100\n\n**Customer with the largest refunded total:**\n- **Name:** Customer 16\n- **Tier:** basic\n- **Refunded total:** $19,575\n\n*(600 refunded orders across the dataset; customer C16 has the largest aggregate refund amount.)*"
     }
   }
 }

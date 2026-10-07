@@ -1,20 +1,20 @@
 {
-  "ranAt": "2026-10-03T08:59:05.346Z",
-  "versions": "pi-ai@1.0.0, pi-durable@1.0.0, pi-codemode@1.0.0, pi-coding-agent@1.0.0",
+  "ranAt": "2026-10-07T08:01:31.141Z",
+  "versions": "pi-ai@1.0.4, pi-durable@1.0.4, pi-codemode@1.0.4, pi-coding-agent@1.0.4, pi-env@1.0.4",
   "result": {
     "model": "typesafe/jev-latest",
     "results": [
       {
         "prompt": "Fix the typo in README.md: 'recieve' should be 'receive'.",
-        "latencyMs": 568,
+        "latencyMs": 614,
         "stopReason": "stop",
         "answers": {
           "complexity": {
             "type": "choice",
             "choice": "standard",
             "probabilities": {
-              "complex": 0,
-              "standard": 1
+              "standard": 1,
+              "complex": 0
             },
             "confidence": 1
           },
@@ -27,15 +27,15 @@
       },
       {
         "prompt": "Redesign the session storage so that forks share history copy-on-write, migrate existing JSONL sessions, and keep resume working across versions.",
-        "latencyMs": 245,
+        "latencyMs": 310,
         "stopReason": "stop",
         "answers": {
           "complexity": {
             "type": "choice",
             "choice": "complex",
             "probabilities": {
-              "complex": 1,
-              "standard": 0
+              "standard": 0,
+              "complex": 1
             },
             "confidence": 1
           },
@@ -48,15 +48,15 @@
       },
       {
         "prompt": "What does the --print flag do?",
-        "latencyMs": 245,
+        "latencyMs": 269,
         "stopReason": "stop",
         "answers": {
           "complexity": {
             "type": "choice",
             "choice": "standard",
             "probabilities": {
-              "complex": 0,
-              "standard": 1
+              "standard": 1,
+              "complex": 0
             },
             "confidence": 1
           },

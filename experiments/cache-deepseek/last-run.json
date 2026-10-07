@@ -1,21 +1,21 @@
 {
-  "ranAt": "2026-10-03T09:21:18.121Z",
-  "versions": "pi-ai@1.0.0, pi-durable@1.0.0, pi-codemode@1.0.0, pi-coding-agent@1.0.0",
+  "ranAt": "2026-10-07T07:56:10.522Z",
+  "versions": "pi-ai@1.0.4, pi-durable@1.0.4, pi-codemode@1.0.4, pi-coding-agent@1.0.4, pi-env@1.0.4",
   "result": {
     "model": "deepseek/deepseek-flash",
     "strategies": {
       "baseline: no change": {
-        "followUpPromptTokens": 4255,
+        "followUpPromptTokens": 4251,
         "cacheHitTokens": 4096,
         "hitPercent": 96
       },
       "prompt change in place (mid-conversation system message)": {
-        "followUpPromptTokens": 4260,
+        "followUpPromptTokens": 4259,
         "cacheHitTokens": 4096,
         "hitPercent": 96
       },
       "prompt change collapsed into the leading system message": {
-        "followUpPromptTokens": 4262,
+        "followUpPromptTokens": 4258,
         "cacheHitTokens": 1792,
         "hitPercent": 42
       },
