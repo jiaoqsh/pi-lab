@@ -37,18 +37,38 @@ const ORIGINAL =
 const PATCHED =
 	"`ALL_TOOLS`, `await searchTools(query, { limit?, namespace? })`, `await describeTool(name)`, `await describeNamespace(name)`: find unlisted tools, such as MCP tools.";
 
-/** Copy the published package and swap the one sentence. Throws if pi no longer contains it (the A/B is then moot). */
-function buildVariant(): string {
-	const packageDir = join(dirname(PI_CLI), "..", "..");
+/** Chunk files of a pi-coding-agent bundle that contain `sentence`. */
+function chunksWith(packageDir: string, sentence: string): string[] {
+	const chunks = join(packageDir, "dist", "bundle", "chunks");
+	return readdirSync(chunks)
+		.map((file) => join(chunks, file))
+		.filter((file) => readFileSync(file, "utf8").includes(sentence));
+}
+
+/** Copy the published package and swap the one sentence. */
+function buildVariant(packageDir: string): string {
 	// Inside pi-lab, so the copy still resolves its dependencies from pi-lab's node_modules.
 	const copy = join(scratchDir("pi-await-variant"), "node_modules", "@earendil-works", "pi-coding-agent");
 	cpSync(packageDir, copy, { recursive: true });
-	const chunks = join(copy, "dist", "bundle", "chunks");
-	const matches = readdirSync(chunks).filter((file) => readFileSync(join(chunks, file), "utf8").includes(ORIGINAL));
-	if (matches.length !== 1) throw new Error(`expected the description sentence in one chunk, found ${matches.length}`);
-	const file = join(chunks, matches[0]);
+	const [file] = chunksWith(copy, ORIGINAL);
 	writeFileSync(file, readFileSync(file, "utf8").replace(ORIGINAL, PATCHED));
 	return join(copy, "dist", "bundle", "cli.js");
+}
+
+/**
+ * The A/B while the published description lacks `await`. pi fixed it upstream (#10555, commit 269121616, the same
+ * sentence as PATCHED): once a release ships it, only the published package runs, which verifies the fix.
+ */
+function chooseVariants(): Record<string, string> {
+	const packageDir = join(dirname(PI_CLI), "..", "..");
+	const original = chunksWith(packageDir, ORIGINAL).length;
+	const patched = chunksWith(packageDir, PATCHED).length;
+	if (original === 1) return { "published description": PI_CLI, "with await": buildVariant(packageDir) };
+	if (patched === 1) {
+		log("The published description already has `await` (#10555 shipped): running it alone.");
+		return { "published description (has await, #10555)": PI_CLI };
+	}
+	throw new Error(`expected the description sentence in one chunk: original in ${original}, patched in ${patched}`);
 }
 
 /** What happened in one run. `{}` output is how an unawaited promise shows up in pi 1.0. */
@@ -90,7 +110,7 @@ async function pool<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> 
 	return results;
 }
 
-const variants = { "published description": PI_CLI, "with await": buildVariant() };
+const variants = chooseVariants();
 const tasks = Object.entries(variants).flatMap(([variant, cli]) =>
 	MODELS.flatMap((model) =>
 		Array.from({ length: RUNS_PER_CELL }, (_, i) => async () => {

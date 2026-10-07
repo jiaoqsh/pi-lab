@@ -32,6 +32,12 @@ const found = searchTools("customer", { limit: 30 });
 return JSON.stringify(found, null, 2);        // "{}"
 ```
 
+## Upstream fix
+
+Reported as [#10555](https://github.com/earendil-works/pi/issues/10555) with the DeepSeek data above. A maintainer reopened it the same day and pi fixed it in [`269121616`](https://github.com/earendil-works/pi/commit/269121616c520a6a9aa9b5da29f1b233ccbed10c) ("mark codemode lookup helpers as async in description"), using the same sentence as the `with await` variant, plus a test that the description keeps the three `await`s. Not released as of 1.0.4.
+
+Once a release contains it, this experiment runs only the published description (labeled `published description (has await, #10555)`), which checks the fix on a real release: the expected result is 0 runs with `{}`.
+
 ## GPT-5.6-sol (pi 1.0.4, 2026-10-06)
 
 Run through a third-party OpenAI-compatible relay with the Responses API, the API pi uses for OpenAI models (`AB_MODELS=openai-relay/gpt-5.6-sol`, see `run.ts`). Two batches of 10 runs per variant, recorded in [`gpt-5.6-sol.json`](gpt-5.6-sol.json).
