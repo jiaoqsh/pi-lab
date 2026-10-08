@@ -36,9 +36,10 @@ return JSON.stringify(found, null, 2);        // "{}"
 
 ## Upstream fix
 
-Reported as [#10555](https://github.com/earendil-works/pi/issues/10555) with the DeepSeek data above. A maintainer reopened it the same day and pi fixed it in [`269121616`](https://github.com/earendil-works/pi/commit/269121616c520a6a9aa9b5da29f1b233ccbed10c) ("mark codemode lookup helpers as async in description"), using the same sentence as the `with await` variant, plus a test that the description keeps the three `await`s. Not released as of 1.0.4.
-
+Reported as [#10555](https://github.com/earendil-works/pi/issues/10555) with the DeepSeek data above. A maintainer reopened it the same day and pi fixed it, released in 1.1.0, in [`269121616`](https://github.com/earendil-works/pi/commit/269121616c520a6a9aa9b5da29f1b233ccbed10c) ("mark codemode lookup helpers as async in description"), using the same sentence as the `with await` variant, plus a test that the description keeps the three `await`s. 
 Once a release contains it, this experiment runs only the published description (labeled `published description (has await, #10555)`), which checks the fix on a real release: the expected result is 0 runs with `{}`.
+
+**Verified on pi 1.1.0** (2026-10-08, the first release with the fix): 0/20 runs serialized a promise (0/10 on each model), against 13/20 with the 1.0.4 description. Mean turns 3.5 (flash) and 4.2 (v4-pro), against 4.4 and 5.8 on 1.0.4. The independent `const tools` problem remains (5/10 and 3/10).
 
 ## GPT-5.6-sol (pi 1.0.4, 2026-10-06)
 

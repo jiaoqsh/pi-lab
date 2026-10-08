@@ -21,10 +21,18 @@ Each case gets a fresh temporary directory. `snapshot.json` lists the case names
 
 The env suite covers the interfaces added in 1.0.3 rather than basic file I/O: bounded binary reads, paged directory listings, `watch()`, argv `exec`, and windowed output. 1.0.4 added three `watch()` cases (symlinked files, overlapping recursive targets, a directory replaced at the same path). The storage suite covers atomic commits, cursors and pagination, fork history, tasks, submissions, and document history.
 
+## Changed in 1.1.0
+
+The storage suite grew from 23 to 24 cases with `scans tables in either ID order and continues a cursor in its order`; all three storages pass 24/24, the env suite is unchanged. It comes with the new `order` field on conversation, entry, task, and submission scans, a breaking change for `Storage` implementations ([#10546](https://github.com/earendil-works/pi/issues/10546), commit `4dd2af42c`):
+
+> `Storage` implementations must honor the new `order` field of `ConversationQuery`, `EntryQuery`, `TaskQuery`, and `SubmissionQuery`, and continue a cursor in the order it was returned with.
+
+The case checks that a cursor carries its order (the next query may omit it) and that reusing a cursor in the other order throws. Drafted by the [release analyst](../../analyst/README.md) on the tracking PR; quotes checked against the source.
+
 ## Watch on upgrades
 
 - New case names in `suites` show what pi now requires of every environment or storage.
 - A failing case on one implementation is a regression of that implementation, or a suite change it has not caught up with.
-- The unreleased `order` field on scans is a breaking change for `Storage` implementations ("must honor the new `order` field"); expect new storage cases when it ships. The Cloudflare Durable Object storage cannot run here (it needs a Durable Object), so it is not covered.
+- The Cloudflare Durable Object storage (`openDurableObjectSqliteStorage`, released in 1.1.0) cannot run here, since it needs a Durable Object, so it is not covered.
 
 Source (v1.0.4): [`packages/durable/src/testing`](https://github.com/earendil-works/pi/tree/v1.0.4/packages/durable/src/testing), [`packages/env/README.md`](https://github.com/earendil-works/pi/blob/v1.0.4/packages/env/README.md).
