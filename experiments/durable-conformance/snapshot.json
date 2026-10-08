@@ -36,6 +36,7 @@
       "paginates conversations by opaque cursor in ascending ID order",
       "filters and pages conversations by durable owner edges",
       "scans deep fork history newest-first through every ancestor cap",
+      "scans tables in either ID order and continues a cursor in its order",
       "replaces complete task records and pages filtered task scans",
       "stores owners and scans waiting and completing tasks by status",
       "indexes request IDs per conversation and replaces complete submission records",
@@ -66,18 +67,18 @@
   },
   "storage": {
     "MemoryStorage": {
-      "cases": 23,
-      "passed": 23,
+      "cases": 24,
+      "passed": 24,
       "failed": {}
     },
     "JSONL storage": {
-      "cases": 23,
-      "passed": 23,
+      "cases": 24,
+      "passed": 24,
       "failed": {}
     },
     "SQLite storage": {
-      "cases": 23,
-      "passed": 23,
+      "cases": 24,
+      "passed": 24,
       "failed": {}
     }
   }
