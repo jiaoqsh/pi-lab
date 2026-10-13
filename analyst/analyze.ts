@@ -73,7 +73,7 @@ const readNotes = defineTool({
 		const text = args["notes-rev"]
 			? execFileSync("git", ["show", `${args["notes-rev"]}:${path}`], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
 			: readFileSync(join(ROOT, path), "utf8");
-		return { content: [{ type: "text", text }] };
+		return { output: [{ type: "text", text }] };
 	},
 });
 
@@ -86,7 +86,7 @@ const changelog = defineTool({
 	replay: "safe",
 	execute: async (input) => {
 		const text = await fetchChangelog(input.package, FROM, TO);
-		return { content: [{ type: "text", text }] };
+		return { output: [{ type: "text", text }] };
 	},
 });
 
@@ -99,7 +99,7 @@ const writeDraft = defineTool({
 	execute: async (input) => {
 		const file = join(outDir, `${checkExperiment(input.experiment)}.md`);
 		writeFileSync(file, `${input.markdown.trim()}\n`);
-		return { content: [{ type: "text", text: `Saved draft to ${file.replace(`${ROOT}/`, "")}` }] };
+		return { output: [{ type: "text", text: `Saved draft to ${file.replace(`${ROOT}/`, "")}` }] };
 	},
 });
 
@@ -108,7 +108,7 @@ const commits = defineTool({
 	description: `Commits between v${FROM} and v${TO} that touch one pi package: short sha and subject.`,
 	parameters: Type.Object({ package: Type.String({ description: `One of: ${PACKAGES.join(", ")}` }) }),
 	replay: "safe",
-	execute: async (input) => ({ content: [{ type: "text", text: await listCommits(input.package, FROM, TO) }] }),
+	execute: async (input) => ({ output: [{ type: "text", text: await listCommits(input.package, FROM, TO) }] }),
 });
 
 const commitDiffTool = defineTool({
@@ -116,7 +116,7 @@ const commitDiffTool = defineTool({
 	description: "A commit's message and patch, optionally only for files under a path prefix such as packages/ai/src/.",
 	parameters: Type.Object({ sha: Type.String(), path_prefix: Type.Optional(Type.String()) }),
 	replay: "safe",
-	execute: async (input) => ({ content: [{ type: "text", text: await commitDiff(input.sha, input.path_prefix) }] }),
+	execute: async (input) => ({ output: [{ type: "text", text: await commitDiff(input.sha, input.path_prefix) }] }),
 });
 
 const readSourceTool = defineTool({
@@ -124,7 +124,7 @@ const readSourceTool = defineTool({
 	description: `A file of the pi repository at a release tag, e.g. packages/ai/src/providers/faux.ts at ${TO}.`,
 	parameters: Type.Object({ path: Type.String(), version: Type.String({ description: `e.g. ${FROM} or ${TO}` }) }),
 	replay: "safe",
-	execute: async (input) => ({ content: [{ type: "text", text: await readSource(input.path, input.version) }] }),
+	execute: async (input) => ({ output: [{ type: "text", text: await readSource(input.path, input.version) }] }),
 });
 
 // ─── The subagent tool ─────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ const analyzeExperiment = defineTool({
 		const submission = await handle.submit({ type: "input", content: prompt, requestId: `analyze:${api.taskId}` }, context);
 		const settled = await submission.wait(context);
 		if (settled.status !== "done" || settled.type !== "input") throw new Error(`subagent for ${experiment} ended: ${settled.status}`);
-		return { content: [{ type: "text", text: await answerText(api, settled.answer) }], details: { conversationId: child } };
+		return { output: [{ type: "text", text: await answerText(api, settled.answer) }], details: { conversationId: child } };
 	},
 });
 

@@ -16,9 +16,34 @@
 
 This is the "N clients can steer one conversation" part of pi-durable: every client submits to the same inbox document.
 
+### Changed in 1.2.0: display-only writes no longer queue
+
+| | 1.1.0 | 1.2.0 |
+|---|---|---|
+| inbox while busy | `10 followUp, 11 steer, 12 write` | `10 followUp, 11 steer` |
+| transcript start | `pi.user, pi.assistant, app.note, ...` | `pi.user, app.note, pi.assistant, ...` |
+
+The example's note is a write of only `kind` and `data`. 1.2.0 appends such a write at once, even while the conversation is busy, instead of holding it in `pi.inbox` until the next turn boundary ([#10407](https://github.com/earendil-works/pi/issues/10407), commit `e6b9a6af5`, `isDisplayOnly()` in `harness/inbox.ts`). It changes nothing the model sees, so a chat message shows as soon as it is sent. A queued reset still holds it back. Intended.
+
 ## 23-subagent-background: subagents on SQLite
 
 Subagents are conversations owned by a task. They can be spawned, steered, stopped, and listed, report their answers back, and survive a restart, all on `openNodeSqliteStorage`.
+
+### Changed in 1.2.0: every `subagent` tool result is empty
+
+```diff
+   subagent spawn reader "Summarize the plot of Moby Dick."
+-  → Started reader.
+-OK. Started reader.
++  → 
++OK. 
+```
+
+1.2.0 renamed `ToolExecutionResult.content` to `output` (breaking). The example's tool still returns `content`, which the Harness now ignores, so each result is the tool's streamed output, which is empty (`harness/tool.ts`: `result.output === undefined ? reported.output.snapshot() : ...`).
+
+This is not only our copy: pi's own `test/examples/23-subagent-background.ts` was not updated either and returns `content` at v1.2.0 and on main as of 2026-10-12, so the official example prints the same empty results. TypeScript does not catch it: the `reply` helper's object also has an optional `details`, which overlaps `ToolExecutionResult`, so the weak-type check passes. A tool returning a literal `{ content }` with nothing else does fail to compile (pi-lab's analyst did).
+
+The copy is kept as upstream has it, so the snapshot records the broken output; a diff back to `Started reader.` will show when upstream fixes the example.
 
 ## 25-compaction: unlimited conversation length
 
@@ -40,6 +65,8 @@ sessionId    : input=105  cacheRead=1002 cacheWrite=106  -> prompt counted as 12
 ```
 
 Durable decides when to compact from that usage, so it compacts too early, and the run ends in `model_error` instead of an overflow compaction and retry (why the retry is skipped was not traced). Patching only that accounting in a copy of pi-ai 1.0.2 (`input = promptTokens - cacheRead - cacheWrite`) makes the example's output identical to 1.0.0, line for line. Real providers are not affected; the faux provider is what pi's own tests and examples run on.
+
+Still the case in 1.1.0 and 1.2.0 (output unchanged).
 
 ## Not included
 
