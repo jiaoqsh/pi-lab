@@ -1,0 +1,6 @@
+{
+	"title": "Kill the process inside a codemode script's tool call: the script replays from its journal and continues",
+	"feature": "durable",
+	"keys": [],
+	"timeoutMs": 90000
+}
