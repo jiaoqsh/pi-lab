@@ -1,0 +1,57 @@
+{
+  "step replay: safe": {
+    "crashExitCode": 1,
+    "afterRestart": {
+      "submissionStatus": "done",
+      "codemodeResult": {
+        "isError": false,
+        "text": "Script completed\nOutput:\n{\"clock\":<clock>,\"random\":<random>,\"results\":[\"step 1 done\",\"step 2 done\",\"step 3 done\"]}",
+        "calls": [
+          "step {\"n\":1,\"clock\":<clock>,\"random\":<random>}: ok",
+          "step {\"n\":2,\"clock\":<clock>,\"random\":<random>}: ok",
+          "step {\"n\":3,\"clock\":<clock>,\"random\":<random>}: ok"
+        ]
+      },
+      "nestedToolTasks": 3
+    },
+    "sideEffects": [
+      "crash process: step 1",
+      "crash process: step 2",
+      "resume process: step 2",
+      "resume process: step 3"
+    ],
+    "sameClockAndRandomInBothProcesses": true,
+    "runsPerStep": {
+      "step 1": 1,
+      "step 2": 2,
+      "step 3": 1
+    }
+  },
+  "step replay: unsafe (default)": {
+    "crashExitCode": 1,
+    "afterRestart": {
+      "submissionStatus": "done",
+      "codemodeResult": {
+        "isError": false,
+        "text": "Script completed\nOutput:\n{\"clock\":<clock>,\"random\":<random>,\"results\":[\"step 1 done\",\"step 2 failed: Tool step was interrupted and may have partially run\",\"step 3 done\"]}",
+        "calls": [
+          "step {\"n\":1,\"clock\":<clock>,\"random\":<random>}: ok",
+          "step {\"n\":2,\"clock\":<clock>,\"random\":<random>}: error",
+          "step {\"n\":3,\"clock\":<clock>,\"random\":<random>}: ok"
+        ]
+      },
+      "nestedToolTasks": 3
+    },
+    "sideEffects": [
+      "crash process: step 1",
+      "crash process: step 2",
+      "resume process: step 3"
+    ],
+    "sameClockAndRandomInBothProcesses": true,
+    "runsPerStep": {
+      "step 1": 1,
+      "step 2": 1,
+      "step 3": 1
+    }
+  }
+}
