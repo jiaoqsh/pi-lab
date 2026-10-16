@@ -66,7 +66,26 @@ sessionId    : input=105  cacheRead=1002 cacheWrite=106  -> prompt counted as 12
 
 Durable decides when to compact from that usage, so it compacts too early, and the run ends in `model_error` instead of an overflow compaction and retry (why the retry is skipped was not traced). Patching only that accounting in a copy of pi-ai 1.0.2 (`input = promptTokens - cacheRead - cacheWrite`) makes the example's output identical to 1.0.0, line for line. Real providers are not affected; the faux provider is what pi's own tests and examples run on.
 
-Still the case in 1.1.0 and 1.2.0 (output unchanged).
+Still the case in 1.1.0, 1.2.0, and 1.3.0: the run still ends in `model_error`.
+
+### Changed in 1.3.0: the system baseline leads the context after a compaction
+
+Same messages and entry counts; only the place of the system message in the model context moved:
+
+| Context after | 1.2.0 | 1.3.0 |
+|---|---|---|
+| "Any museums?" | summary, assistant, user, assistant, user, **system**, assistant | **system**, summary, assistant, user, assistant, user, assistant |
+| "Summarize the plan" (`model_error`) | summary, assistant, user, **system** | **system**, summary, assistant, user |
+
+Problem: providers treat only a leading system message as the initial prompt and tool set. After a compaction that keeps an assistant message, the baseline `pi.system` entry written for the next run followed the kept history and the new input, so Anthropic and OpenAI Codex requests carried it as a mid-conversation system message and had no initial prompt or tool set. Context derivation (`leadWithSystem()` in `harness/context.ts`) moved a system message to the front only when user messages alone preceded it:
+
+```ts
+// 1.2.0
+const index = messages.findIndex((message) => message.role !== "user");
+if (index <= 0 || messages[index]!.role !== "system") return messages;
+```
+
+1.3.0 identifies the baseline (the first `pi.system` entry after the head marker) and always moves it to the front; other system messages after an assistant message stay in place ([#10904](https://github.com/earendil-works/pi/issues/10904), commit `5713c9507`). Intended fix. The faux provider sends no real request, so this example only shows the order; [midconvo-requests](../midconvo-requests/NOTES.md) shows how a provider serializes a leading versus a mid-conversation system message.
 
 ## Not included
 
