@@ -29,6 +29,16 @@ The storage suite grew from 23 to 24 cases with `scans tables in either ID order
 
 The case checks that a cursor carries its order (the next query may omit it) and that reusing a cursor in the other order throws. Drafted by the [release analyst](../../analyst/README.md) on the tracking PR; quotes checked against the source.
 
+## Changed in 1.4.0
+
+The storage suite grew from 24 to 25 cases with `stores and scans sleeping tasks by status`; all three storages pass 25/25, the env suite is unchanged. Tasks gained a `sleeping` status, which replaces `TaskRuntime.sleep()` (commit `f75b3240a`). A sleeping task holds no invocation, survives restarts, and resumes at its checkpoint once the Harness clock reaches `until`. The case stores a sleeping task, scans for it by status, then replaces it with a running one and checks the scan no longer returns it.
+
+Storages had to admit the status. SQLite does it with a schema migration that rebuilds the task table, and it is one-way:
+
+> A migrated database cannot be opened by 1.3.0 or earlier, so a deployment cannot roll back past this release.
+
+Drafted by the release analyst on the tracking PR; quotes checked against the source.
+
 ## Watch on upgrades
 
 - New case names in `suites` show what pi now requires of every environment or storage.
