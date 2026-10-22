@@ -70,7 +70,7 @@ sessionId    : input=1002 cacheRead=0    cacheWrite=1002 -> prompt counted as 20
 sessionId    : input=105  cacheRead=1002 cacheWrite=106  -> prompt counted as 1213 (real: 1107)
 ```
 
-Durable decides when to compact from that usage, so it compacts too early, and the run ends in `model_error` instead of an overflow compaction and retry (why the retry is skipped was not traced). Patching only that accounting in a copy of pi-ai 1.0.2 (`input = promptTokens - cacheRead - cacheWrite`) makes the example's output identical to 1.0.0, line for line. Real providers are not affected; the faux provider is what pi's own tests and examples run on.
+Durable decides when to compact from that usage, so it compacts too early, and the run ends in `model_error` instead of an overflow compaction and retry (why the retry is skipped was not traced). Patching only that accounting in a copy of pi-ai 1.0.2 (`input = promptTokens - cacheRead - cacheWrite`) makes the example's output identical to 1.0.0, line for line. Real providers are not affected; the faux provider is what pi's own tests and examples run on. Reported upstream as [#11301](https://github.com/earendil-works/pi/issues/11301).
 
 Still the case in 1.1.0 through 1.4.0: the run still ends in `model_error`.
 
@@ -100,5 +100,7 @@ if (index <= 0 || messages[index]!.role !== "system") return messages;
 ```bash
 node --conditions=source --experimental-strip-types packages/durable/test/examples/21-late-join.ts
 ```
+
+Upstream renumbered its examples after 1.4.0 (`b9fb2b854`): 20-inbox is now `19-inbox.ts`, 23-subagent-background `22-subagent-background.ts`, 25-compaction `24-compaction.ts`. The copies here keep their v1.0.0 names.
 
 Source (v1.0.0): [`packages/durable/test/examples`](https://github.com/earendil-works/pi/tree/v1.0.0/packages/durable/test/examples), [`README.md`](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/README.md) sections "Busy Conversations" and "Compaction".
