@@ -15,6 +15,8 @@ With a `sessionId`, tokens written to the simulated cache are counted in both `i
 
 Why it surfaced in 1.0.2: pi-durable started passing a stable `sessionId` to model requests (`70eceaade`, "persist provider session identities"). The faux code is older; nothing passed a `sessionId` to it in durable before.
 
+Reported upstream as [#11301](https://github.com/earendil-works/pi/issues/11301) (on 1.4.0, where `faux.ts` is unchanged).
+
 ## Watch on upgrades
 
 A fix changes the `with sessionId` rows of `snapshot.json` (expected: prompt counted 1002 and 1107), and the 25-compaction output in durable-examples should return to its 1.0.0 form.
