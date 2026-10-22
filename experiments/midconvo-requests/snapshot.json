@@ -54,13 +54,13 @@
       ]
     },
     "openai gpt-5.5 (responses): additional_tools": {
-      "tools": [
-        "read"
-      ],
+      "tools": [],
       "items": [
+        "additional_tools: [{\"type\":\"function\",\"name\":\"read\",\"description\":\"Read a file\",\"parameters\":{\"type\":\"object\",\"required\":[\"path\"],\"properties\":{\"path\":{\"type\":\"string\"}}},\"strict\":false}]",
         "developer: You are a coding assistant.\n\n<mode>read-only</mode>",
         "user: [{\"type\":\"input_text\",\"text\":\"What is in README.md?\"}]",
         "assistant: [{\"type\":\"output_text\",\"text\":\"It describes the project.\",\"annotations\":[]}]",
+        "developer: This is an incremental tools update. Previously declared tools remain available unless explicitly marked unavailable. A tool declared again here is available again, and its latest definition replaces …",
         "additional_tools: [{\"type\":\"function\",\"name\":\"deploy\",\"description\":\"Deploy a service\",\"parameters\":{\"type\":\"object\",\"required\":[\"service\"],\"properties\":{\"service\":{\"type\":\"string\"}}},\"strict\":false}]",
         "developer: Deployments are now allowed.\n\nUpdated system prompt section \"mode\":\n\n<mode>deploy</mode>",
         "user: [{\"type\":\"input_text\",\"text\":\"Deploy the api.\"}]"

@@ -39,6 +39,7 @@
       "scans tables in either ID order and continues a cursor in its order",
       "replaces complete task records and pages filtered task scans",
       "stores owners and scans waiting and completing tasks by status",
+      "stores and scans sleeping tasks by status",
       "indexes request IDs per conversation and replaces complete submission records",
       "stores passive write submissions without input-only lifecycle states",
       "reconstructs rewindable documents and preserves half-open incarnations",
@@ -67,18 +68,18 @@
   },
   "storage": {
     "MemoryStorage": {
-      "cases": 24,
-      "passed": 24,
+      "cases": 25,
+      "passed": 25,
       "failed": {}
     },
     "JSONL storage": {
-      "cases": 24,
-      "passed": 24,
+      "cases": 25,
+      "passed": 25,
       "failed": {}
     },
     "SQLite storage": {
-      "cases": 24,
-      "passed": 24,
+      "cases": 25,
+      "passed": 25,
       "failed": {}
     }
   }
