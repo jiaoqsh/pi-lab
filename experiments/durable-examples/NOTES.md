@@ -41,7 +41,7 @@ Subagents are conversations owned by a task. They can be spawned, steered, stopp
 
 1.2.0 renamed `ToolExecutionResult.content` to `output` (breaking). The example's tool still returns `content`, which the Harness now ignores, so each result is the tool's streamed output, which is empty (`harness/tool.ts`: `result.output === undefined ? reported.output.snapshot() : ...`).
 
-This is not only our copy: pi's own `test/examples/23-subagent-background.ts` was not updated either and returns `content` at v1.2.0 through v1.4.0, so the official example prints the same empty results. TypeScript does not catch it: the `reply` helper's object also has an optional `details`, which overlaps `ToolExecutionResult`, so the weak-type check passes. A tool returning a literal `{ content }` with nothing else does fail to compile (pi-lab's analyst did).
+This is not only our copy: pi's own `test/examples/23-subagent-background.ts` was not updated either and returns `content` at v1.2.0 through v1.5.0, so the official example prints the same empty results. TypeScript does not catch it: the `reply` helper's object also has an optional `details`, which overlaps `ToolExecutionResult`, so the weak-type check passes. A tool returning a literal `{ content }` with nothing else does fail to compile (pi-lab's analyst did).
 
 The copy is kept as upstream has it, so the snapshot records the broken output; a diff back to `Started reader.` will show when upstream fixes the example.
 
@@ -50,6 +50,15 @@ The copy is kept as upstream has it, so the snapshot records the broken output; 
 1.4.0 requires an explicit `checkpointWhen` predicate on every `defineDoc()` and `defineDocFamily()` definition (breaking, commit `5c1736f82`). The predicate decides when a change is stored as a full base instead of a delta; `() => false` keeps every change a delta. The tracking run, before the copy was migrated, showed what an old definition does: it fails at its first write, not at load time, because `validateDefinition()` checks only `version` and the commit path now calls `change.definition!.checkpointWhen(...)` (`session/transaction.ts`). Every `subagent send` ended in `[error] change.definition.checkpointWhen is not a function`, and the `reader:` reports disappeared. Type checking catches it too (`npm run check` failed on the `Subagents` definition).
 
 The copy now carries `checkpointWhen: () => false`, the same line the commit added to pi's own example, and its output is identical to 1.3.0. The tool results are still empty: pi's example still returns `content` at v1.4.0.
+
+### Changed in 1.5.0: migrated to pi-schema and `Conversation.watch()`
+
+1.5.0 broke the copy twice; the output is unchanged once it is migrated:
+
+- pi-ai no longer exports TypeBox's `Type` (commit `6536f8012`); tool parameters are any JSON Schema. The `subagent` tool's schema now uses `@earendil-works/pi-schema` (`obj`, `oneOf`, `opt`, `str`, `bool`).
+- pi-durable removed `watchEvents()` and its `AgentEvent` types ([#11327](https://github.com/earendil-works/pi/issues/11327)): "A renderer renders state instead of assembling it from events". The example prints new entries from `Conversation.watch()` instead.
+
+The copy is now pi's v1.5.0 `22-subagent-background.ts` with only the imports changed. The tool results are still empty: that file still returns `content`.
 
 ## 25-compaction: unlimited conversation length
 
@@ -72,7 +81,13 @@ sessionId    : input=105  cacheRead=1002 cacheWrite=106  -> prompt counted as 12
 
 Durable decides when to compact from that usage, so it compacts too early, and the run ends in `model_error` instead of an overflow compaction and retry (why the retry is skipped was not traced). Patching only that accounting in a copy of pi-ai 1.0.2 (`input = promptTokens - cacheRead - cacheWrite`) makes the example's output identical to 1.0.0, line for line. Real providers are not affected; the faux provider is what pi's own tests and examples run on. Reported upstream as [#11301](https://github.com/earendil-works/pi/issues/11301).
 
-Still the case in 1.1.0 through 1.4.0: the run still ends in `model_error`.
+Still the case in 1.1.0 through 1.4.0: the run still ends in `model_error`. Fixed in 1.5.0 (below).
+
+### Fixed in 1.5.0: the overflow retry is back
+
+With the faux fix ([faux-usage](../faux-usage/NOTES.md#fixed-in-150)), the first threshold compaction comes after the 4th question again, and "Summarize the plan for my partner" is `answered` after an **overflow** compaction and one retry, as on 1.0.0.
+
+This also confirms why the retry was skipped from 1.0.2 to 1.4.0. A generation compacts and retries on an overflow only if it has not compacted yet (`compacted` absent, spec section 8.3). The inflated usage made that last question cross the blocking threshold first, so its generation had already compacted (the old output shows a `threshold` summary first) and the overflow failed it with `model_error`.
 
 ### Changed in 1.3.0: the system baseline leads the context after a compaction
 

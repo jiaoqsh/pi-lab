@@ -13,7 +13,7 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [durable-crash](experiments/durable-crash/NOTES.md) | pi-durable | – | Kill the process mid tool call: `replay: "safe"` vs default, memos, when partial output survives |
 | [durable-codemode-replay](experiments/durable-codemode-replay/NOTES.md) | pi-durable codemode | – | Kill the process inside a script's tool call: the script replays from its journal with the same clock and randomness, finished calls are not repeated, the interrupted call follows its own replay policy |
 | [durable-examples](experiments/durable-examples/NOTES.md) | pi-durable | – | Official examples as a baseline: busy inbox (steer/follow-up), background subagents on SQLite, compaction |
-| [faux-usage](experiments/faux-usage/NOTES.md) | pi-ai faux provider | – | With a `sessionId`, the faux provider counts cache-written prompt tokens twice; why pi-durable's compaction example changed in 1.0.2 |
+| [faux-usage](experiments/faux-usage/NOTES.md) | pi-ai faux provider | – | With a `sessionId`, the faux provider counted cache-written prompt tokens twice (1.0.2 to 1.4.0, fixed in 1.5.0 after [#11301](https://github.com/earendil-works/pi/issues/11301)); why pi-durable's compaction example changed |
 | [durable-conformance](experiments/durable-conformance/NOTES.md) | pi-durable, pi-env | – | pi-durable's own conformance suites on the local and remote (pi-env daemon) environments and on the memory, JSONL, and SQLite storages |
 | [durable-remote-crash](experiments/durable-remote-crash/NOTES.md) | pi-durable, pi-env | – | Tools on a pi-env daemon: the daemon, the transport, or the harness dies mid-command |
 | [cache-deepseek](experiments/cache-deepseek/NOTES.md) | system messages | DeepSeek | Measured cache hits: in place 96%, collapsed 42%, tool list resent 48% |
@@ -88,4 +88,4 @@ Keys stay in `.env` (git-ignored). Nothing here is meant to be hosted: experimen
 
 ## License
 
-MIT. `experiments/durable-examples/examples/` are copied from pi v1.0.0 (MIT, Copyright (c) Earendil Works) with imports changed to the published packages.
+MIT. `experiments/durable-examples/examples/` are copied from pi v1.0.0 (MIT, Copyright (c) Earendil Works) with imports changed to the published packages; 23-subagent-background follows upstream's migrations since.

@@ -17,6 +17,15 @@ Why it surfaced in 1.0.2: pi-durable started passing a stable `sessionId` to mod
 
 Reported upstream as [#11301](https://github.com/earendil-works/pi/issues/11301) (on 1.4.0, where `faux.ts` is unchanged).
 
+## Fixed in 1.5.0
+
+| Request (with `sessionId`) | 1.4.0 | 1.5.0 |
+|---|---|---|
+| first | input 1002, cacheWrite 1002, prompt counted 2004 | input **0**, cacheWrite 1002, prompt counted **1002** |
+| second | input 105, cacheRead 1002, cacheWrite 106, prompt counted 1213 | input **0**, cacheRead 1002, cacheWrite **105**, prompt counted **1107** |
+
+Commit `f3fa8bd92` ("do not count faux cache writes as input tokens"), from [#11301](https://github.com/earendil-works/pi/issues/11301): while caching is simulated, every prompt token is either a cache read or a cache write, and `input` is 0. The fix differs from the one proposed here (`input = promptTokens - cacheRead - cacheWrite`) only in how `cacheWrite` is derived: `promptTokens - cacheRead` instead of rounding up from characters, hence 105 instead of 106. Prompt counted now equals the prompt in both rows, and durable-examples' 25-compaction recovers from its overflow again ([durable-examples](../durable-examples/NOTES.md#fixed-in-150-the-overflow-retry-is-back)).
+
 ## Watch on upgrades
 
 A fix changes the `with sessionId` rows of `snapshot.json` (expected: prompt counted 1002 and 1107), and the 25-compaction output in durable-examples should return to its 1.0.0 form.

@@ -1,14 +1,15 @@
 // Per strategy: a fresh nonce leads the system prompt (no cache sharing between strategies), a warm-up request
 // writes the cache, and the follow-up after a mid-conversation change reports how many prompt tokens hit the cache.
-import { type Api, type Context, type Message, type Model, Type } from "@earendil-works/pi-ai";
+import { type Api, type Context, type Message, type Model } from "@earendil-works/pi-ai";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { deepseekProvider } from "@earendil-works/pi-ai/providers/deepseek";
 import { emit, log, requireEnv } from "../../lib/experiment.ts";
 
 requireEnv("DEEPSEEK_API_KEY");
 
-const read = { name: "read", description: "Read a file", parameters: Type.Object({ path: Type.String() }) };
-const deploy = { name: "deploy", description: "Deploy a service", parameters: Type.Object({ service: Type.String() }) };
+// Plain JSON Schema, as TypeBox emitted it before pi 1.5.0, so the request bodies stay comparable across releases.
+const read = { name: "read", description: "Read a file", parameters: { type: "object", required: ["path"], properties: { path: { type: "string" } } } };
+const deploy = { name: "deploy", description: "Deploy a service", parameters: { type: "object", required: ["service"], properties: { service: { type: "string" } } } };
 
 // About 2k tokens each, so "system only" and "system + conversation" hits are easy to tell apart.
 const filler = (topic: string, n: number) =>

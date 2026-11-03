@@ -9,7 +9,8 @@ import { spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
-import { type ToolResultMessage, Type } from "@earendil-works/pi-ai";
+import type { ToolResultMessage } from "@earendil-works/pi-ai";
+import { num, obj } from "@earendil-works/pi-schema";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxText, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
 import { CodemodeSandbox } from "@earendil-works/pi-codemode";
@@ -50,7 +51,7 @@ async function child(directory: string, mode: Mode, phase: Phase): Promise<void>
 	const step = defineTool({
 		name: "step",
 		description: "Run one step",
-		parameters: Type.Object({ n: Type.Number(), clock: Type.Number(), random: Type.Number() }),
+		parameters: obj({ n: num(), clock: num(), random: num() }),
 		replay: mode === "safe" ? "safe" : undefined,
 		execute: async (args) => {
 			// The script passes its clock and random number along, so the log shows what the script saw in each process.
