@@ -12,7 +12,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
-import { type AssistantMessage, Type } from "@earendil-works/pi-ai";
+import type { AssistantMessage } from "@earendil-works/pi-ai";
+import { obj, opt, str } from "@earendil-works/pi-schema";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { deepseekProvider } from "@earendil-works/pi-ai/providers/deepseek";
 import {
@@ -57,7 +58,7 @@ const experimentNames = loadExperiments().map((experiment) => experiment.name);
 
 // ─── Tools shared by the lead and the workers ──────────────────────────────
 
-const experimentParam = Type.String({ description: `One of: ${experimentNames.join(", ")}` });
+const experimentParam = str({ description: `One of: ${experimentNames.join(", ")}` });
 function checkExperiment(name: string): string {
 	if (!experimentNames.includes(name)) throw new Error(`Unknown experiment "${name}". Known: ${experimentNames.join(", ")}`);
 	return name;
@@ -66,7 +67,7 @@ function checkExperiment(name: string): string {
 const readNotes = defineTool({
 	name: "read_notes",
 	description: "Read an experiment's NOTES.md: what it measures, its findings, and what to watch on upgrades.",
-	parameters: Type.Object({ experiment: experimentParam }),
+	parameters: obj({ experiment: experimentParam }),
 	replay: "safe",
 	execute: async (input) => {
 		const path = `experiments/${checkExperiment(input.experiment)}/NOTES.md`;
@@ -80,8 +81,8 @@ const readNotes = defineTool({
 const changelog = defineTool({
 	name: "changelog",
 	description: `Changelog entries of one pi package for the releases after ${FROM} up to ${TO}, from GitHub.`,
-	parameters: Type.Object({
-		package: Type.String({ description: `One of: ${PACKAGES.join(", ")}` }),
+	parameters: obj({
+		package: str({ description: `One of: ${PACKAGES.join(", ")}` }),
 	}),
 	replay: "safe",
 	execute: async (input) => {
@@ -94,7 +95,7 @@ const writeDraft = defineTool({
 	name: "write_draft",
 	description:
 		"Save the proposed NOTES.md addition for an experiment (Markdown, starting with a `### Changed in <version>` heading). Overwrites an earlier draft.",
-	parameters: Type.Object({ experiment: experimentParam, markdown: Type.String() }),
+	parameters: obj({ experiment: experimentParam, markdown: str() }),
 	replay: "safe",
 	execute: async (input) => {
 		const file = join(outDir, `${checkExperiment(input.experiment)}.md`);
@@ -106,7 +107,7 @@ const writeDraft = defineTool({
 const commits = defineTool({
 	name: "commits",
 	description: `Commits between v${FROM} and v${TO} that touch one pi package: short sha and subject.`,
-	parameters: Type.Object({ package: Type.String({ description: `One of: ${PACKAGES.join(", ")}` }) }),
+	parameters: obj({ package: str({ description: `One of: ${PACKAGES.join(", ")}` }) }),
 	replay: "safe",
 	execute: async (input) => ({ output: [{ type: "text", text: await listCommits(input.package, FROM, TO) }] }),
 });
@@ -114,7 +115,7 @@ const commits = defineTool({
 const commitDiffTool = defineTool({
 	name: "commit_diff",
 	description: "A commit's message and patch, optionally only for files under a path prefix such as packages/ai/src/.",
-	parameters: Type.Object({ sha: Type.String(), path_prefix: Type.Optional(Type.String()) }),
+	parameters: obj({ sha: str(), path_prefix: opt(str()) }),
 	replay: "safe",
 	execute: async (input) => ({ output: [{ type: "text", text: await commitDiff(input.sha, input.path_prefix) }] }),
 });
@@ -122,7 +123,7 @@ const commitDiffTool = defineTool({
 const readSourceTool = defineTool({
 	name: "read_source",
 	description: `A file of the pi repository at a release tag, e.g. packages/ai/src/providers/faux.ts at ${TO}.`,
-	parameters: Type.Object({ path: Type.String(), version: Type.String({ description: `e.g. ${FROM} or ${TO}` }) }),
+	parameters: obj({ path: str(), version: str({ description: `e.g. ${FROM} or ${TO}` }) }),
 	replay: "safe",
 	execute: async (input) => ({ output: [{ type: "text", text: await readSource(input.path, input.version) }] }),
 });
@@ -147,7 +148,7 @@ async function answerText(api: ToolExecutionApi, answer: EntryId): Promise<strin
 const analyzeExperiment = defineTool({
 	name: "analyze_experiment",
 	description: "Have a subagent explain one changed or failed experiment from the changelogs and draft its NOTES.md update.",
-	parameters: Type.Object({ experiment: experimentParam }),
+	parameters: obj({ experiment: experimentParam }),
 	// A rerun finds the child conversation and the submission it made before a crash.
 	replay: "safe",
 	execute: async (input, api) => {

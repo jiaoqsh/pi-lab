@@ -21,11 +21,23 @@ Before `execute()` runs, the tool task commits its intent as a checkpoint: `{ ph
 
 `replay: "safe"` is a promise from the tool author, not a guarantee from pi. Idempotence comes from `api.memo(name, value)` (first write wins, stored durably) or from `requestId` on submissions, as the subagent example does.
 
-**Partial output depends on timing.** `api.output()` is not synchronous. Progress commits are adaptive: the first change commits at once, later commits wait at least 100 ms and longer for large writes ([`harness/output.ts`](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/src/harness/output.ts), `Progress`). With no `await` between `output()` and the crash, not even the first commit completes, so the model gets no partial output. Durable state that must survive belongs in `memo` or `commit`, which await the storage write.
+**Partial output depends on timing.** `api.output()` is not synchronous. Progress commits are adaptive: the first change commits at once, later commits wait at least 100 ms and longer for large writes ([`harness/output.ts`](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/src/harness/output.ts), `Progress`). With no `await` between `output()` and the crash, not even the first commit completes, so the model gets no partial output. Durable state that must survive belongs in `memo` or `commit`, which await the storage write. Since 1.5.0 progress is also stored up to a second later (below).
 
 Storage format: each line of `main.jsonl` is one atomic commit (`seq`); task checkpoints are `task.sidecar` writes; documents such as `pi.live` live in `doc-N.jsonl`. The first commit of a run includes a `pi.system` entry with `toolsAdded`, the same `SystemMessage` delta model as pi-ai ([midconvo-requests](../midconvo-requests/NOTES.md)).
 
 Source (v1.0.0): [`harness/tool.ts`](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/src/harness/tool.ts) (`ToolTask`, phases `call` and `execute`), [`README.md`](https://github.com/earendil-works/pi/blob/v1.0.0/packages/durable/README.md).
+
+## Changed in 1.5.0: partial output is stored up to a second later
+
+| Scenario | 1.4.0 | 1.5.0 |
+|---|---|---|
+| default, with 250 ms between steps | `step 1: done`, `step 2: done`, then the interrupted error | only the interrupted error |
+
+Problem: every partial answer and every bit of tool output was one storage transaction, so long answers and parallel tools spent most of their storage work on progress. 1.5.0 makes these commits deferred: watches and views see them at once, but Storage gets them with the next commit that reads `pi.live` (the tool settling, the answer ending) and at the latest after `settings.progress.persistWithinMs` (default 1,000 ms). The changelog states the cost:
+
+> A crash now loses up to about a second of streamed content instead of 100 ms
+
+The 250 ms scenario crashes about 500 ms in, inside that window, so its `step 1: done` and `step 2: done` are lost with the process. Intended. `settings.progress.persistWithinMs: 0` restores storing after each commit. The rest of the table is unchanged: the interrupted error and the memos are immediate commits.
 
 ## Watch on upgrades
 

@@ -33,7 +33,7 @@
       ],
       "toolResult": {
         "isError": true,
-        "text": "step 1: done\nstep 2: done\n<harness>\n[error] Tool deploy was interrupted and may have partially run\n</harness>"
+        "text": "<harness>\n[error] Tool deploy was interrupted and may have partially run\n</harness>"
       }
     },
     "sideEffects": [

@@ -16,7 +16,7 @@
       "watch skips excluded entries and reports a rename out of them",
       "watch keeps recursive coverage where a non-recursive target overlaps",
       "watch follows a directory replaced at the same path",
-      "watch stops reporting once closed",
+      "watch stops reporting once stopped",
       "argv exec passes arguments to the program without shell parsing",
       "exec reports the stream of every chunk in both forms",
       "argv exec honors cwd and exit codes",
@@ -28,6 +28,7 @@
     ],
     "storage": [
       "reserves ID 1 for the immutable root conversation",
+      "receives a durable commit once before resolving, and never a refused one",
       "commits mixed table writes atomically and rolls all of them back on failure",
       "detaches retained writes and every returned record",
       "detaches prototype-like JSON keys without changing object prototypes",
@@ -42,15 +43,21 @@
       "stores and scans sleeping tasks by status",
       "indexes request IDs per conversation and replaces complete submission records",
       "stores passive write submissions without input-only lifecycle states",
+      "stores continue submissions, which have no entry and are never queued",
       "reconstructs rewindable documents and preserves half-open incarnations",
       "streams long document tails across root replacement deltas",
       "copies stored document bases independently and rejects ambiguous sources",
       "uses bases for version transitions and rejects historical reads of current-only documents",
       "indexes logical addresses and exact-scope scans independently",
       "keeps document lifecycle failures atomic and gives create-plus-retire an empty lifetime",
+      "refuses a creation and a change of one document in one commit, in either order",
       "rolls back record tables and secondary indexes when a document command fails",
       "keeps indexed string identities lossless",
       "keeps one global record ID namespace and rejects exhausted ID minting",
+      "commits batches in order, each with its seq, checked against the earlier ones",
+      "stores the batches before the first one refused, and none after it",
+      "refuses a later batch its own malformed actions fail, keeping the batches before it",
+      "resolves a batched copy against the state the earlier batches left",
       "rejects every operation after close"
     ]
   },
@@ -68,18 +75,18 @@
   },
   "storage": {
     "MemoryStorage": {
-      "cases": 25,
-      "passed": 25,
+      "cases": 32,
+      "passed": 32,
       "failed": {}
     },
     "JSONL storage": {
-      "cases": 25,
-      "passed": 25,
+      "cases": 32,
+      "passed": 32,
       "failed": {}
     },
     "SQLite storage": {
-      "cases": 25,
-      "passed": 25,
+      "cases": 32,
+      "passed": 32,
       "failed": {}
     }
   }

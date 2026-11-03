@@ -7,7 +7,8 @@ import { spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
-import { type ToolResultMessage, Type } from "@earendil-works/pi-ai";
+import type { ToolResultMessage } from "@earendil-works/pi-ai";
+import { obj, str } from "@earendil-works/pi-schema";
 import { createModels } from "@earendil-works/pi-ai/models";
 import { fauxAssistantMessage, fauxProvider, fauxText, fauxToolCall } from "@earendil-works/pi-ai/providers/faux";
 import { createRegistry, defineExtension, defineTool, Harness, ToolResultEntry } from "@earendil-works/pi-durable";
@@ -23,7 +24,7 @@ async function child(directory: string, mode: Mode, phase: Phase, flushWaitMs: n
 	const deploy = defineTool({
 		name: "deploy",
 		description: "Deploy the service in three steps",
-		parameters: Type.Object({ service: Type.String() }),
+		parameters: obj({ service: str() }),
 		replay: mode === "safe" ? "safe" : undefined,
 		execute: async (args, api, callContext) => {
 			for (const step of [1, 2, 3]) {

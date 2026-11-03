@@ -1,12 +1,13 @@
 // One transcript with a mid-conversation system message, turned into each provider's request body.
 // `onPayload` captures the body and aborts before anything is sent, so no API key or network is needed.
-import { type Api, type AssistantMessage, type Context, type Model, Type } from "@earendil-works/pi-ai";
+import { type Api, type AssistantMessage, type Context, type Model } from "@earendil-works/pi-ai";
 import { builtinModels } from "@earendil-works/pi-ai/providers/all";
 import { getCurrentSystemMessage } from "@earendil-works/pi-ai/utils/transcript";
 import { emit, log, truncate } from "../../lib/experiment.ts";
 
-const read = { name: "read", description: "Read a file", parameters: Type.Object({ path: Type.String() }) };
-const deploy = { name: "deploy", description: "Deploy a service", parameters: Type.Object({ service: Type.String() }) };
+// Plain JSON Schema, as TypeBox emitted it before pi 1.5.0, so the request bodies stay comparable across releases.
+const read = { name: "read", description: "Read a file", parameters: { type: "object", required: ["path"], properties: { path: { type: "string" } } } };
+const deploy = { name: "deploy", description: "Deploy a service", parameters: { type: "object", required: ["service"], properties: { service: { type: "string" } } } };
 
 function assistant(model: Model<Api>): AssistantMessage {
 	return {
@@ -71,8 +72,10 @@ const VARIANTS: [string, Model<Api>][] = [
 		"anthropic sonnet-5-5: collapsed",
 		variant("anthropic", "claude-sonnet-5-5", { supportsMidConvoSystemMessages: false, supportsMidConvoToolChanges: false }),
 	],
-	["openai gpt-5.5 (responses): additional_tools", variant("openai", "gpt-5.5")],
-	["openai gpt-5.5 (responses): tool_search only", variant("openai", "gpt-5.5", { supportsAdditionalTools: false })],
+	["openai gpt-5.6-sol (responses): additional_tools", variant("openai", "gpt-5.6-sol")],
+	["openai gpt-5.6-sol (responses): tool_search only", variant("openai", "gpt-5.6-sol", { supportsAdditionalTools: false })],
+	// Since pi-ai 1.5.0, GPT-5.4 and 5.5 declare every tool in the top-level list (neither additional_tools nor tool search).
+	["openai gpt-5.5 (responses): top-level tools", variant("openai", "gpt-5.5")],
 	["moonshotai kimi-k2.6 (chat completions)", variant("moonshotai", "kimi-k2.6")],
 	["deepseek deepseek-v4-pro (chat completions)", variant("deepseek", "deepseek-v4-pro")],
 	["deepseek deepseek-flash (chat completions, default catalog)", variant("deepseek", "deepseek-flash")],

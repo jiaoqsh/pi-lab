@@ -24,8 +24,8 @@ The first system message is the system prompt. Later ones are deltas. Replaying 
 | Anthropic, native | `read`, placeholder | `system` message: text diff + `tool_addition` block carrying the full `deploy` definition | kept |
 | Anthropic, system only | `read`, `deploy` | `system` message, text only | broken by the tool list |
 | Anthropic, collapsed | `read`, `deploy` | folded into the top-level system | broken |
-| OpenAI Responses (`additional_tools`) | none (since 1.4.0) | `additional_tools` item + `developer` message | kept |
-| OpenAI Responses (tool_search only) | `read` | a synthesized, completed `tool_search_call` / `tool_search_output` pair carrying `deploy`, + `developer` message | kept |
+| OpenAI Responses (`additional_tools`), gpt-5.6-sol | none (since 1.4.0) | `additional_tools` item + `developer` message | kept |
+| OpenAI Responses (tool_search only), gpt-5.6-sol | `read` | a synthesized, completed `tool_search_call` / `tool_search_output` pair carrying `deploy`, + `developer` message | kept |
 | Kimi, DeepSeek v4-pro (Chat Completions) | `read`, `deploy` | `system` message in place | text kept, tool list breaks it |
 | DeepSeek flash (catalog default) | `read`, `deploy` | collapsed | broken |
 | Gemini | `read`, `deploy` | collapsed into `systemInstruction` | broken |
@@ -48,6 +48,8 @@ Measured cache effect: [cache-deepseek](../cache-deepseek/NOTES.md).
 - **1.0.1** (`b271b0a52`, beta `inline-tools-2026-09-15`): the top-level list never changes after the first request; later tools travel by value inside `tool_addition` (`tool_definition`). Caught by this experiment's snapshot in the first tracking PR (1.0.0 -> 1.0.2).
 
 - **1.4.0** (`caa6967b6`, `530015d93`, [#10940](https://github.com/earendil-works/pi/issues/10940)): on Responses models with both mid-conversation system messages and `additional_tools`, every tool is declared in `additional_tools` items, starting with one at the head of the input; the top-level `tools` list is empty. Problem: `additional_tools` can add or redefine tools from earlier items, but cannot replace a top-level tool or remove any. So in 1.3.0 a removal rewrote the top-level list and lost the prompt cache on every later load. Now a removal is a text notice (`The following tools are no longer available. Do not call them:`), and every later `additional_tools` item follows a `developer` notice (`This is an incremental tools update. ...`), so the model does not read the latest item as the complete tool set. That notice is the new line in this row. Breaking for callers of `resolveTranscriptTools()`, which now takes `"none"`, `"additions"`, or `"changes"`; pi-lab does not call it. Other rows are unchanged.
+
+- **1.5.0**: GPT-5.4 and GPT-5.5 on the OpenAI and OpenCode providers declare every tool in the top-level list and use neither `additional_tools` nor tool search, which fixes `Missing namespace for function_call` after switching from another model that called tools ([#11415](https://github.com/earendil-works/pi/issues/11415)). The two Responses rows therefore moved from gpt-5.5 to gpt-5.6-sol, which still has both; their request bodies are identical to gpt-5.5's on 1.4.0. A new `gpt-5.5 (responses): top-level tools` row records the new gpt-5.5 behavior: `read` and `deploy` in the top-level list, the system change as a `developer` message in place. The tool schemas are now plain JSON Schema objects, since pi-ai no longer exports TypeBox's `Type`, written as TypeBox emitted them, so the bodies did not change.
 
 ## Watch on upgrades
 

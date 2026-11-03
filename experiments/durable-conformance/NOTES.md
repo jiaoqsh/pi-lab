@@ -39,6 +39,14 @@ Storages had to admit the status. SQLite does it with a schema migration that re
 
 Drafted by the release analyst on the tracking PR; quotes checked against the source.
 
+## Changed in 1.5.0
+
+The storage suite grew from 25 to 32 cases; all three storages pass 32/32. Four of the new cases cover the new `Storage.commit()`, which takes a group of commits (breaking for `Storage` implementations):
+
+> `Storage.commit()` stores a group of commits in one call: `commit(batches, receive, context)` resolves with a `CommitResult` (`{ stored, refused? }`) and replaces `commit(writes, adopt, context)`. Each batch is one atomic commit with its own seq, checked against the state the batches before it left.
+
+When one batch is refused, the batches before it are stored and none after it. The other new cases: a commit is received once before `commit()` resolves, and never a refused one; `continue` submissions (`submit({ type: "continue" })`, a run without a user message) have no entry and are never queued; a creation and a change of one document in one commit are refused. In the env suite, `watch stops reporting once closed` became `... once stopped`, since `FileWatcher.close(context)` is now `stop(context)`.
+
 ## Watch on upgrades
 
 - New case names in `suites` show what pi now requires of every environment or storage.
