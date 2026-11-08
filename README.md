@@ -17,6 +17,7 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [durable-conformance](experiments/durable-conformance/NOTES.md) | pi-durable, pi-env | – | pi-durable's own conformance suites on the local and remote (pi-env daemon) environments and on the memory, JSONL, and SQLite storages |
 | [durable-remote-crash](experiments/durable-remote-crash/NOTES.md) | pi-durable, pi-env | – | Tools on a pi-env daemon: the daemon, the transport, or the harness dies mid-command |
 | [chord-server-worker](experiments/chord-server-worker/NOTES.md) | chord v2 (experimental) | – | A server forks one worker per project on demand and relays to it; owner and guest get different variants of one object; a killed worker is forked again and its notes come back from its store |
+| [chord-durable-session](experiments/chord-durable-session/NOTES.md) | chord v2 (experimental) + pi-durable | – | A Durable Harness inside a Chord worker, on the worker's store; a worker killed mid tool call is forked again, the tool resumes from its memos, and both clients' references follow |
 | [cache-deepseek](experiments/cache-deepseek/NOTES.md) | system messages | DeepSeek | Measured cache hits: in place 96%, collapsed 42%, tool list resent 48% |
 | [midconvo-adherence](experiments/midconvo-adherence/NOTES.md) | system messages | DeepSeek | Whether models obey an instruction that arrives mid-conversation |
 | [jev-classify](experiments/jev-classify/NOTES.md) | non-LLM models | TypeSafe | Typed classifier answers with probabilities, about 250 ms per call |
