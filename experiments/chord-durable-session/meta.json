@@ -1,0 +1,6 @@
+{
+	"title": "Durable inside Chord v2: a worker per session, the Harness on the worker's store, a crash mid tool call",
+	"feature": "chord v2 + durable",
+	"keys": [],
+	"timeoutMs": 90000
+}

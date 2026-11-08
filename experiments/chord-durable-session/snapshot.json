@@ -1,0 +1,91 @@
+{
+  "1. owner and viewer hold Chat { s1 }": {
+    "ownerVariant": "owner",
+    "viewerVariant": "viewer",
+    "viewerSend": {
+      "code": "invalid",
+      "reason": "member"
+    },
+    "sameWorker": true
+  },
+  "2. worker killed between steps 2 and 3": {
+    "sideEffects": [
+      "worker#1 api step 1",
+      "worker#1 api step 2"
+    ],
+    "viewerTranscriptAtCrash": [
+      "pi.user",
+      "pi.system",
+      "pi.assistant"
+    ]
+  },
+  "3. after the restart": {
+    "ownerReferenceStates": [
+      "live",
+      "loading",
+      "live"
+    ],
+    "viewerReferenceStates": [
+      "live",
+      "loading",
+      "live"
+    ],
+    "forks": 2,
+    "sideEffects": [
+      "worker#1 api step 1",
+      "worker#1 api step 2",
+      "worker#2 api step 3"
+    ],
+    "transcript": [
+      {
+        "kind": "pi.user",
+        "text": "Deploy api"
+      },
+      {
+        "kind": "pi.system",
+        "text": ""
+      },
+      {
+        "kind": "pi.assistant",
+        "text": "call deploy({\"service\":\"api\"})"
+      },
+      {
+        "kind": "pi.tool-result",
+        "text": "step 1: skipped (memo)\nstep 2: skipped (memo)\nstep 3: done"
+      },
+      {
+        "kind": "pi.assistant",
+        "text": "Deployed api."
+      }
+    ],
+    "ownerSeesTheSame": true,
+    "viewerWatchLatest": "pi.user,pi.system,pi.assistant,pi.tool-result,pi.assistant"
+  },
+  "4. s1.sqlite after shutdown": {
+    "tables": [
+      "session.agent:conversations",
+      "session.agent:deploy.audit",
+      "session.agent:entries",
+      "session.agent:entry_heads",
+      "session.agent:record_ids",
+      "session.agent:submissions",
+      "session.agent:tasks"
+    ],
+    "documentOwners": [
+      "session.agent"
+    ],
+    "auditRows": [
+      "{\"step\":1,\"pid\":worker#1}",
+      "{\"step\":2,\"pid\":worker#1}",
+      "{\"step\":3,\"pid\":worker#2}"
+    ],
+    "durableEntries": [
+      "pi.user",
+      "pi.system",
+      "pi.assistant",
+      "pi.tool-result",
+      "pi.assistant"
+    ]
+  },
+  "hostErrors": []
+}
