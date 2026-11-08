@@ -16,6 +16,7 @@ Started with pi 1.0 (October 2026): codemode and MCP, deferred tool loading, mid
 | [faux-usage](experiments/faux-usage/NOTES.md) | pi-ai faux provider | – | With a `sessionId`, the faux provider counted cache-written prompt tokens twice (1.0.2 to 1.4.0, fixed in 1.5.0 after [#11301](https://github.com/earendil-works/pi/issues/11301)); why pi-durable's compaction example changed |
 | [durable-conformance](experiments/durable-conformance/NOTES.md) | pi-durable, pi-env | – | pi-durable's own conformance suites on the local and remote (pi-env daemon) environments and on the memory, JSONL, and SQLite storages |
 | [durable-remote-crash](experiments/durable-remote-crash/NOTES.md) | pi-durable, pi-env | – | Tools on a pi-env daemon: the daemon, the transport, or the harness dies mid-command |
+| [chord-server-worker](experiments/chord-server-worker/NOTES.md) | chord v2 (experimental) | – | A server forks one worker per project on demand and relays to it; owner and guest get different variants of one object; a killed worker is forked again and its notes come back from its store |
 | [cache-deepseek](experiments/cache-deepseek/NOTES.md) | system messages | DeepSeek | Measured cache hits: in place 96%, collapsed 42%, tool list resent 48% |
 | [midconvo-adherence](experiments/midconvo-adherence/NOTES.md) | system messages | DeepSeek | Whether models obey an instruction that arrives mid-conversation |
 | [jev-classify](experiments/jev-classify/NOTES.md) | non-LLM models | TypeSafe | Typed classifier answers with probabilities, about 250 ms per call |

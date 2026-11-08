@@ -1,0 +1,6 @@
+{
+	"title": "Smallest Chord v2 app: a server routes each project to its own worker process; principals, variants, a crash",
+	"feature": "chord v2",
+	"keys": [],
+	"timeoutMs": 90000
+}

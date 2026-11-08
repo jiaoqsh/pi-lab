@@ -1,0 +1,64 @@
+{
+  "1. owner and guest hold Notes { p1 }": {
+    "ownerVariant": "editor",
+    "guestVariant": "reader",
+    "guestAdd": {
+      "code": "invalid",
+      "reason": "member"
+    },
+    "sameWorker": true,
+    "guestWatchLatest": [
+      "buy milk",
+      "call bob"
+    ]
+  },
+  "2. owner holds Notes { p2 }": {
+    "p2Items": [
+      "p2 only"
+    ],
+    "p1Items": [
+      "buy milk",
+      "call bob"
+    ],
+    "differentProcess": true,
+    "forks": [
+      "p1",
+      "p2"
+    ]
+  },
+  "3. guest asks for Notes { p2 }": {
+    "refused": {
+      "code": "forbidden",
+      "reason": null
+    }
+  },
+  "4. worker p1 killed": {
+    "ownerReferenceStates": [
+      "live",
+      "loading",
+      "live"
+    ],
+    "newProcess": true,
+    "itemsAfterRestart": [
+      "buy milk",
+      "call bob",
+      "after the crash"
+    ],
+    "guestFollowedToo": [
+      "buy milk",
+      "call bob",
+      "after the crash"
+    ],
+    "guestWatchLatest": [
+      "buy milk",
+      "call bob",
+      "after the crash"
+    ],
+    "forks": [
+      "p1",
+      "p2",
+      "p1"
+    ]
+  },
+  "hostErrors": []
+}
