@@ -3,7 +3,7 @@
 // server over the IPC channel it was forked with.
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
-import { constant, createHost, defineFacet, ipcLink, openStore, sqliteBackend } from "@earendil-works/chord/next";
+import { constant, createHost, defineFacet, ipcLink, openStore, sqliteBackend } from "@earendil-works/chord";
 import { openNodeSqliteDatabase } from "@earendil-works/chord/sqlite/node";
 import { NoteStore, Notes, NotesDoc, type P, Project } from "./core.ts";
 

@@ -4,8 +4,8 @@
 //
 //   owner, viewer ── memory links ──▶ server ── route Session → fork worker.ts, IPC ──▶ worker s1: Agent (Harness) + s1.sqlite
 //
-// The scenario: the owner asks for a deploy; the model calls a three-step tool; the worker is SIGKILLed between steps
-// 2 and 3; the route forks the session again, Durable resumes the tool task (memos skip steps 1 and 2) and the model
+// The scenario: the owner asks for a deploy; the model calls a three-step tool; the worker is SIGKILLed after step 2
+// is committed and before step 3; the route forks the session again, Durable resumes the tool task (memos skip steps 1 and 2) and the model
 // answers; both clients' references follow across the crash without retry code.
 import { fork } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -22,7 +22,7 @@ import {
 	type Reference,
 	type RefState,
 	sqliteBackend,
-} from "@earendil-works/chord/next";
+} from "@earendil-works/chord";
 import { openNodeSqliteDatabase } from "@earendil-works/chord/sqlite/node";
 import { ROOT_CONVERSATION_ID } from "@earendil-works/pi-durable";
 import { StoreStorage } from "@earendil-works/pi-durable/storage/store";
@@ -32,6 +32,7 @@ import { Agent, Chat, type P, Server, SessionHost } from "./core.ts";
 const context = BACKGROUND_CONTEXT;
 const directory = scratchDir("chord-durable-session");
 const sideEffects = join(directory, "side-effects.log");
+const committed = join(directory, "committed.log");
 const errors: string[] = [];
 const onError = (who: string) => (error: { kind: string }) => {
 	errors.push(`${who}: ${error.kind}`);
@@ -87,7 +88,8 @@ function until<T>(read: () => T, done: (value: T) => boolean, label: string, ms 
 		tick();
 	});
 }
-const effects = () => (existsSync(sideEffects) ? readFileSync(sideEffects, "utf8").trim().split("\n") : []);
+const lines = (file: string) => (existsSync(file) ? readFileSync(file, "utf8").trim().split("\n") : []);
+const effects = () => lines(sideEffects);
 /** Pids differ per run: name them by fork order. */
 const named = (text: string) => pids.reduce((t, pid, i) => t.replaceAll(String(pid), `worker#${i + 1}`), text);
 
@@ -128,7 +130,14 @@ result["1. owner and viewer hold Chat { s1 }"] = {
 
 // 2. The owner asks; the model calls deploy; the worker dies after step 2.
 await ownerChat.send({ text: "Deploy api" }, context);
-await until(effects, (lines) => lines.length === 2, "steps 1 and 2");
+// Kill only once step 2's audit row and memo are committed and the viewer has the tool call: the log line alone
+// comes before both commits, and a kill there reruns step 2 in the second worker.
+await until(() => lines(committed), (steps) => steps.length === 2, "steps 1 and 2 committed");
+await until(
+	() => viewerChat.transcript.value.entries.map((e) => e.kind),
+	(kinds) => kinds.includes("pi.assistant"),
+	"the tool call at the viewer",
+);
 const beforeCrash = viewerChat.transcript.value.entries;
 const firstPid = ownerChat.worker.value.pid;
 children.get("s1")?.kill("SIGKILL");

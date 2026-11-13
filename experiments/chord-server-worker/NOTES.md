@@ -1,6 +1,6 @@
 # Chord v2: one server, one worker process per project
 
-**Question.** Chord v2 (`@earendil-works/chord/next`, experimental) is the object system pi's authors build their own app on: a server, a worker process per session, clients that reach workers through the server. What does the smallest app of that shape look like with the published 1.5.0 package, and what does Chord do for it?
+**Question.** Chord v2 (`@earendil-works/chord`, `/next` until 1.5.0, experimental) is the object system pi's authors build their own app on: a server, a worker process per session, clients that reach workers through the server. What does the smallest app of that shape look like with the published 1.5.0 package, and what does Chord do for it?
 
 **What the experiment does.** Three files, no plugins component:
 
@@ -34,6 +34,14 @@ guest client ─┘   (principal      (authorize, resolve:    └─▶ worker p
 - **Who calls is the link's to say.** The server's `accept(link, { principal })` decides that a client is the owner or a guest; the hold carries that principal to the worker over the trusted IPC link, and the `Notes` factory picks the variant from it. A remote object's identity includes the principal key, so owner and guest hold two objects over one `NoteStore`. Design: "shared store, per-principal views".
 - **Persisted data lives in a `local` object with empty params** (`NoteStore`): it lives as long as the worker and its document is a row of the worker's store. `Notes` objects hold no data of their own; `list` is the store's member, re-exposed.
 - **A crash is a dropped link.** The route's link closes after a completed handshake, so the address resolves again while it is held. References do not end: they show `loading` with their last values and rebind to the new process's object with one diff. The client code has no retry logic.
+
+## Changed in 1.5.1: v2 is the package root
+
+The run failed at import with `ERR_PACKAGE_PATH_NOT_EXPORTED` for `@earendil-works/chord/next`: the `./next` key is gone from the package's `exports`. Chord 1.5.1 promoted v2 to the root (commit `7ac1a9e3a`):
+
+> Chord v2 is the package's root: `@earendil-works/chord` exports v2 (was `@earendil-works/chord/next`). [...] Migration: imports of `@earendil-works/chord/next` drop `/next`
+
+Dropping `/next` in `core.ts`, `worker.ts` and `run.ts` is the whole migration; every name the experiment imports is on the new root, and the snapshot is unchanged. The same release exports the workers component: `@earendil-works/chord/workers` (`createWorkers`) and `@earendil-works/chord/workers/child` (`workerMain`, `processLock`). The experiment still wires `host.route` and `fork` itself.
 
 ## What 1.5.0 does not offer yet
 

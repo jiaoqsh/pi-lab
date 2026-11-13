@@ -4,7 +4,7 @@
 import { appendFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { BACKGROUND_CONTEXT } from "@earendil-works/chord/context";
-import { constant, createHost, defineFacet, ipcLink, openStore, sqliteBackend } from "@earendil-works/chord/next";
+import { constant, createHost, defineFacet, ipcLink, openStore, sqliteBackend } from "@earendil-works/chord";
 import { openNodeSqliteDatabase } from "@earendil-works/chord/sqlite/node";
 import type { Message } from "@earendil-works/pi-ai";
 import { createModels } from "@earendil-works/pi-ai/models";
@@ -28,6 +28,7 @@ if (session === undefined || directory === undefined || process.send === undefin
 const context = BACKGROUND_CONTEXT;
 const sideEffects = join(directory, "side-effects.log");
 const gate = join(directory, "step-3.gate");
+const committed = join(directory, "committed.log");
 
 // Make the link first: it queues the server's messages until the host listens.
 const link = ipcLink(process as Parameters<typeof ipcLink>[0]);
@@ -75,6 +76,7 @@ const facet = defineFacet<P>((host) => {
 					appendFileSync(sideEffects, `${process.pid} ${args.service} step ${step}\n`); // the outside world
 					await self.tx(async (tx) => tx.put(audit, { step, pid: process.pid }), callContext); // a Chord row
 					await api.memo(`step-${step}`, true, callContext); // a Durable record, same store
+					appendFileSync(committed, `${step}\n`); // tells the run this step is in the store
 					api.output(`step ${step}: done\n`);
 				}
 				return {};

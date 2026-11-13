@@ -17,7 +17,7 @@ viewer ─┘                                  │      Agent ─ self.follow �
                                            │      deploy.audit (Chord table, same store)
 ```
 
-The run holds step 3 back (a gate file) until it has killed the first worker, so the crash always lands between steps 2 and 3.
+The run holds step 3 back (a gate file) until it has killed the first worker, and kills only once step 2's audit row and memo are committed (the worker appends to `committed.log` after each memo) and the viewer has the tool call. The crash always lands between steps 2 and 3.
 
 ## Findings (chord 1.5.0, pi-durable 1.5.0)
 
@@ -30,6 +30,20 @@ The run holds step 3 back (a gate file) until it has killed the first worker, so
 | host errors | none |
 
 **Without `harness.resume()` the session stalls.** In the first version, the second worker opened the Harness and the route, the references and the view all recovered, but the tool task never ran again: the transcript stopped at the tool call. Work a crash left "stays pending" until `resume()` starts the scheduler, or until a submit or a wait starts it ([README, Persist and Resume](https://github.com/earendil-works/pi/blob/v1.5.0/packages/durable/README.md#persist-and-resume)). A CLI that resubmits with the same `requestId` (as [durable-crash](../durable-crash/NOTES.md) does) never notices this. A worker that a route reopens because a client holds a reference has nobody who submits, so its harness object must call `resume()` itself.
+
+## Changed in 1.5.1: v2 is the package root; the crash point was racy
+
+The run failed at import with `ERR_PACKAGE_PATH_NOT_EXPORTED` for `@earendil-works/chord/next`, the same cause and fix as [chord-server-worker](../chord-server-worker/NOTES.md#changed-in-151-v2-is-the-package-root): imports drop `/next`.
+
+Fixing that showed a flake that 1.5.0 has too (3 of 12 runs on 1.5.0, 2 of 6 on 1.5.2). The run killed the worker as soon as step 2's line was in the side-effects log, but the log line comes before step 2's audit row and memo are committed. A kill in that window gave:
+
+| | snapshot | racy run |
+|---|---|---|
+| viewer transcript at crash | `pi.user`, `pi.system`, `pi.assistant` | `pi.user`, `pi.system` |
+| side effects | step 3 by worker#2 | steps 2 and 3 by worker#2 |
+| tool result | `step 2: skipped (memo)` | `step 2: done` |
+
+That is the limit below (a crash between the side effect and the memo reruns the step), hit by the harness rather than by the scenario. The worker now signals each committed memo and the run waits for step 2's signal and for the tool call at the viewer before the kill; 20 of 20 runs match the snapshot.
 
 ## How it works
 
