@@ -18,7 +18,7 @@ import {
 	memoryLinkPair,
 	type Reference,
 	type RefState,
-} from "@earendil-works/chord/next";
+} from "@earendil-works/chord";
 import { emit, log, scratchDir } from "../../lib/experiment.ts";
 import { Notes, type P, Project, Server } from "./core.ts";
 

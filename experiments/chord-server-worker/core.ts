@@ -1,5 +1,5 @@
 // Base code shared by the server, the workers and the clients: host kinds, the principal type, the contracts.
-import { arr, defineState, hostKind, int, local, method, obj, remote, str } from "@earendil-works/chord/next";
+import { arr, defineState, hostKind, int, local, method, obj, remote, str } from "@earendil-works/chord";
 
 /** Who is calling. Links stamp it; a caller's own data never sets it. */
 export type P =
