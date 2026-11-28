@@ -41,6 +41,7 @@
       "replaces complete task records and pages filtered task scans",
       "stores owners and scans waiting and completing tasks by status",
       "stores and scans sleeping tasks by status",
+      "round-trips sleeps on signals, any waits, and wakes",
       "indexes request IDs per conversation and replaces complete submission records",
       "stores passive write submissions without input-only lifecycle states",
       "stores continue submissions, which have no entry and are never queued",
@@ -75,18 +76,18 @@
   },
   "storage": {
     "MemoryStorage": {
-      "cases": 32,
-      "passed": 32,
+      "cases": 33,
+      "passed": 33,
       "failed": {}
     },
     "JSONL storage": {
-      "cases": 32,
-      "passed": 32,
+      "cases": 33,
+      "passed": 33,
       "failed": {}
     },
     "SQLite storage": {
-      "cases": 32,
-      "passed": 32,
+      "cases": 33,
+      "passed": 33,
       "failed": {}
     }
   }
